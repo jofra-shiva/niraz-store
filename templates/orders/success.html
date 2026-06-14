@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Confirmed – NIRAZ{% endblock %}
+
+{% block content %}
+<div class="success-page" style="padding-top:140px;">
+  <div class="success-card">
+    <div class="success-icon">🎉</div>
+    <h1>ORDER CONFIRMED!</h1>
+    <p>Your order has been placed successfully. We'll send you a confirmation SMS with tracking details.</p>
+    
+    <div style="background:rgba(34,197,94,0.1); border:1px solid rgba(34,197,94,0.3); border-radius:10px; padding:16px; margin-bottom:28px; text-align:left;">
+      <div style="font-family:var(--font-head); font-size:12px; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--green); margin-bottom:8px;">Order Details</div>
+      <div style="font-size:14px; color:var(--gray);">Order ID: <span style="color:var(--white); font-weight:600;">{{ order.tracking_code }}</span></div>
+      <div style="font-size:14px; color:var(--gray); margin-top:4px;">Estimated Delivery: <span style="color:var(--white); font-weight:600;">3–5 Business Days</span></div>
+    </div>
+    
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <a href="{% url 'orders:order_track' %}?phone={{ order.phone_number }}" class="btn-ghost">Track Order</a>
+      <a href="{% url 'core:index' %}" class="btn-primary">Continue Shopping</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

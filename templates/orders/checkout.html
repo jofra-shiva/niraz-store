@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Checkout – NIRAZ{% endblock %}
+
+{% block content %}
+<div class="checkout-page">
+  <div class="container">
+    <div class="checkout-form">
+      <div class="checkout-title">CHECKOUT</div>
+
+      <!-- Order Summary Checklist -->
+      <div style="margin-bottom:32px;">
+        <div style="font-family:var(--font-head);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:16px;">Order Summary</div>
+        <div id="checkoutSummary" style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:16px;">
+          {% for item in cart %}
+          <div class="summary-row" style="display:flex; justify-content:space-between; color:var(--gray); font-size:14px; margin-bottom:10px;">
+            <span>{{ item.product.name }} × {{ item.quantity }} ({{ item.size }})</span>
+            <span>₹{{ item.total_price_as_int }}</span>
+          </div>
+          {% endfor %}
+          <div class="summary-row total" style="display:flex; justify-content:space-between; color:var(--white); font-family:var(--font-head); font-weight:800; font-size:18px; padding-top:14px; margin-top:8px; border-top:1px solid var(--border);">
+            <span>Total to Pay</span>
+            <span>₹{{ cart.get_total_as_int }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="font-family:var(--font-head);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--gray);margin-bottom:20px;">Delivery Details</div>
+
+      <!-- Form Submission -->
+      <form id="checkoutForm" method="post" action="{% url 'orders:order_create' %}">
+        {% csrf_token %}
+        
+        <!-- Render forms fields individually to preserve CSS styles exactly -->
+        <div class="form-group">
+          <label class="form-label" for="{{ form.customer_name.id_for_label }}">Full Name</label>
+          {{ form.customer_name }}
+          {% if form.customer_name.errors %}<span style="color:red; font-size:12px;">{{ form.customer_name.errors.0 }}</span>{% endif %}
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="{{ form.phone_number.id_for_label }}">Phone Number</label>
+          {{ form.phone_number }}
+          {% if form.phone_number.errors %}<span style="color:red; font-size:12px;">{{ form.phone_number.errors.0 }}</span>{% endif %}
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="{{ form.address.id_for_label }}">Full Address</label>
+          {{ form.address }}
+          {% if form.address.errors %}<span style="color:red; font-size:12px;">{{ form.address.errors.0 }}</span>{% endif %}
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="{{ form.city.id_for_label }}">City</label>
+            {{ form.city }}
+            {% if form.city.errors %}<span style="color:red; font-size:12px;">{{ form.city.errors.0 }}</span>{% endif %}
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="{{ form.pincode.id_for_label }}">Pincode</label>
+            {{ form.pincode }}
+            {% if form.pincode.errors %}<span style="color:red; font-size:12px;">{{ form.pincode.errors.0 }}</span>{% endif %}
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label" for="{{ form.state.id_for_label }}">State</label>
+          {{ form.state }}
+          {% if form.state.errors %}<span style="color:red; font-size:12px;">{{ form.state.errors.0 }}</span>{% endif %}
+        </div>
+
+        <div style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.2);border-radius:10px;padding:16px;margin-bottom:24px;display:flex;align-items:center;gap:12px;">
+          <span style="font-size:24px;">💳</span>
+          <div>
+            <div style="font-family:var(--font-head);font-size:14px;font-weight:700;">Razorpay Secure Payment</div>
+            <div style="color:var(--gray);font-size:12px;">UPI, Cards, Net Banking & Wallets accepted</div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary pay-btn" style="justify-content:center;">Place Order & Pay →</button>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Payment Failed – NIRAZ{% endblock %}
+
+{% block content %}
+<div class="success-page" style="padding-top:140px;">
+  <div class="success-card" style="border-color: rgba(239, 68, 68, 0.3);">
+    <div class="success-icon">❌</div>
+    <h1 style="color: #EF4444;">PAYMENT FAILED</h1>
+    <p>We're sorry, but the transaction could not be authorized. Please check your credentials or contact support if the issue persists.</p>
+    
+    <div style="background:rgba(239, 68, 68, 0.08); border:1px solid rgba(239, 68, 68, 0.2); border-radius:10px; padding:16px; margin-bottom:28px; text-align:left;">
+      <div style="font-family:var(--font-head); font-size:12px; font-weight:700; color:#EF4444; margin-bottom:8px; text-transform:uppercase;">Troubleshooting</div>
+      <div style="font-size:14px; color:var(--gray); margin-bottom:4px;">Order Status: <span style="font-weight:600; color:var(--white);">Failed</span></div>
+      <div style="font-size:14px; color:var(--gray);">Contact Support: <span style="font-weight:600; color:var(--white);">+91 81247 30074</span></div>
+    </div>
+    
+    <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+      <a href="{% url 'cart:cart_detail' %}" class="btn-primary" style="background:#EF4444;">View Bag</a>
+      <a href="{% url 'orders:order_create' %}" class="btn-ghost">Try Checkout Again</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

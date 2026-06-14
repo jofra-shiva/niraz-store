@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Products – NIRAZ{% endblock %}
+
+{% block content %}
+<div class="container section" style="padding-top:120px;">
+  <div class="dashboard-container">
+    <!-- SIDEBAR -->
+    <div class="dash-sidebar">
+      <div style="font-family: var(--font-head); font-size: 11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--gray2); padding-left: 18px; margin-bottom: 10px;">OPERATIONS</div>
+      <a href="{% url 'dashboard:dashboard_home' %}" class="dash-menu-item">🏠 Dashboard</a>
+      <a href="{% url 'dashboard:product_list' %}" class="dash-menu-item active">👔 Manage Products</a>
+      <a href="{% url 'dashboard:order_list' %}" class="dash-menu-item">📦 View Orders</a>
+      <a href="{% url 'dashboard:analytics_view' %}" class="dash-menu-item">📈 Real-time Analytics</a>
+      
+      <div style="margin-top:auto; padding-top:40px;">
+        <a href="{% url 'dashboard:owner_logout' %}" style="display:inline-flex; align-items:center; gap:8px; font-family:var(--font-head); font-size:12px; font-weight:700; text-transform:uppercase; color:#EF4444; text-decoration:none; padding-left: 18px;">
+          🚪 Log Out
+        </a>
+      </div>
+    </div>
+    
+    <!-- MAIN WORKSPACE -->
+    <div class="dash-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <h2 style="font-family: var(--font-head); font-size: 28px; font-weight:800;">CATALOG MANAGEMENT</h2>
+        <a href="{% url 'dashboard:product_add' %}" class="btn-primary" style="padding:10px 20px; font-size: 12px;">+ Add Product</a>
+      </div>
+      
+      <!-- PRODUCTS TABLE -->
+      <div style="background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 30px;">
+        <div style="overflow-x: auto;">
+          <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+            <thead>
+              <tr style="border-bottom: 1px solid var(--border); color: var(--gray); font-family: var(--font-head); font-weight:700;">
+                <th style="padding:12px;">EMOJI</th>
+                <th style="padding:12px;">PRODUCT NAME</th>
+                <th style="padding:12px;">CATEGORY</th>
+                <th style="padding:12px;">PRICE</th>
+                <th style="padding:12px;">DISCOUNT</th>
+                <th style="padding:12px;">STOCK LEVEL</th>
+                <th style="padding:12px;">VISIBILITY</th>
+                <th style="padding:12px; text-align: right;">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in products %}
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--gray);">
+                <td style="padding:14px; font-size: 24px;">{{ p.emoji }}</td>
+                <td style="padding:14px; font-weight: 600; color: var(--white);">{{ p.name }}</td>
+                <td style="padding:14px; text-transform: uppercase; font-size:11px; font-weight:600;">{{ p.category.name }}</td>
+                <td style="padding:14px; color: var(--white);">₹{{ p.price_as_int }}</td>
+                <td style="padding:14px; color: var(--green); font-weight:700;">{{ p.discount_percent }}% OFF</td>
+                <td style="padding:14px; {% if p.stock < 5 %} color: #EF4444; font-weight: 700; {% endif %}">
+                  {{ p.stock }} units
+                </td>
+                <td style="padding:14px;">
+                  {% if p.available %}
+                    <span style="color:var(--green); font-weight: 600;">Active</span>
+                  {% else %}
+                    <span style="color:var(--gray2);">Hidden</span>
+                  {% endif %}
+                </td>
+                <td style="padding:14px; text-align: right; display:flex; justify-content: flex-end; gap:10px; align-items:center;">
+                  <a href="{% url 'dashboard:product_edit' pk=p.id %}" class="btn-cart" style="flex: none; padding: 6px 12px; font-size:11px; text-decoration:none;">Edit</a>
+                  
+                  <!-- Post submit deletion form -->
+                  <form action="{% url 'dashboard:product_delete' pk=p.id %}" method="post" onsubmit="return confirm('Completely delete Product: {{ p.name }}?');" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" style="background: none; border: none; color: #EF4444; font-family: var(--font-head); font-weight: 700; font-size: 11px; text-transform: uppercase; cursor: pointer;">
+                      Delete
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="8" style="padding: 20px; text-align: center; color: var(--gray2);">No products found inside the catalog. Select "+ Add Product" to get started!</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

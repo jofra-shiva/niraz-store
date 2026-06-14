@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }} – NIRAZ{% endblock %}
+
+{% block content %}
+<div class="container section" style="padding-top:120px;">
+  <div class="dashboard-container">
+    <!-- SIDEBAR -->
+    <div class="dash-sidebar">
+      <div style="font-family: var(--font-head); font-size: 11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; color:var(--gray); padding-left: 18px; margin-bottom: 10px;">OPERATIONS</div>
+      <a href="{% url 'dashboard:dashboard_home' %}" class="dash-menu-item">🏠 Dashboard</a>
+      <a href="{% url 'dashboard:product_list' %}" class="dash-menu-item active">👔 Manage Products</a>
+      <a href="{% url 'dashboard:order_list' %}" class="dash-menu-item">📦 View Orders</a>
+      <a href="{% url 'dashboard:analytics_view' %}" class="dash-menu-item">📈 Real-time Analytics</a>
+    </div>
+    
+    <!-- MAIN WORKSPACE -->
+    <div class="dash-content">
+      <h2 style="font-family: var(--font-head); font-size: 28px; font-weight:800; margin-bottom: 30px;">{{ title|upper }}</h2>
+      
+      <div class="checkout-form" style="max-width:100%; margin: 0;">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          
+          {% if form.errors %}
+            <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #EF4444; border-radius: 6px; padding: 16px; margin-bottom: 24px;">
+              Please correct the error fields indicated below.
+            </div>
+          {% endif %}
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="{{ form.name.id_for_label }}">Product Name</label>
+              {{ form.name }}
+              {% if form.name.errors %}<p style="color: #EF4444; font-size:12px;">{{ form.name.errors.0 }}</p>{% endif %}
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="{{ form.category.id_for_label }}">Product Style category</label>
+              {{ form.category }}
+              {% if form.category.errors %}<p style="color: #EF4444; font-size:12px;">{{ form.category.errors.0 }}</p>{% endif %}
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="{{ form.price.id_for_label }}">Price (in ₹)</label>
+              {{ form.price }}
+              {% if form.price.errors %}<p style="color: #EF4444; font-size:12px;">{{ form.price.errors.0 }}</p>{% endif %}
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="{{ form.discount_percent.id_for_label }}">Discount (in %)</label>
+              {{ form.discount_percent }}
+              {% if form.discount_percent.errors %}<p style="color: #EF4444; font-size:12px;">{{ form.discount_percent.errors.0 }}</p>{% endif %}
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label" for="{{ form.stock.id_for_label }}">Stock Levels (Units)</label>
+              {{ form.stock }}
+              {% if form.stock.errors %}<p style="color: #EF4444; font-size:12px;">{{ form.stock.errors.0 }}</p>{% endif %}
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label" for="{{ form.emoji.id_for_label }}">Launcher Card Emoji representation</label>
+              {{ form.emoji }}
+              {% if form.emoji.errors %}<p style="color: #EF4444; font-size:12px;">{{ form.emoji.errors.0 }}</p>{% endif %}
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="{{ form.description.id_for_label }}">Description</label>
+            {{ form.description }}
+            {% if form.description.errors %}<p style="color: #EF4444; font-size:12px;">{{ form.description.errors.0 }}</p>{% endif %}
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label" for="id_image">Product Image File (Replaces default Emoji)</label>
+            {{ form.image }}
+            {% if form.image.errors %}<p style="color: #EF4444; font-size:12px;">{{ form.image.errors.0 }}</p>{% endif %}
+          </div>
+          
+          <div class="form-group" style="display:flex; flex-direction:column; gap:12px; margin-top:20px;">
+            <div style="display:flex; align-items:center;">
+              {{ form.available }}
+              <label class="form-label" style="display:inline; margin-bottom:0;" for="{{ form.available.id_for_label }}">Available for Shopping</label>
+            </div>
+            
+            <div style="display:flex; align-items:center;">
+              {{ form.featured }}
+              <label class="form-label" style="display:inline; margin-bottom:0;" for="{{ form.featured.id_for_label }}">Feature on Home recommendations</label>
+            </div>
+            
+            <div style="display:flex; align-items:center;">
+              {{ form.is_new }}
+              <label class="form-label" style="display:inline; margin-bottom:0;" for="{{ form.is_new.id_for_label }}">Display "New" tag badge</label>
+            </div>
+          </div>
+          
+          <div style="display:flex; gap:16px; margin-top:40px;">
+            <button type="submit" class="btn-primary" style="padding:14px 40px;">Save Product Drops</button>
+            <a href="{% url 'dashboard:product_list' %}" class="btn-ghost" style="display:inline-flex; align-items:center;">Cancel</a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

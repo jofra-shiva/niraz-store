@@ -1,0 +1,142 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ product.name }} – NIRAZ{% endblock %}
+
+{% block content %}
+<div class="product-detail section">
+  <div class="container">
+    <a href="javascript:history.back()" style="display:inline-flex;align-items:center;gap:8px;color:var(--gray);font-family:var(--font-head);font-size:13px;font-weight:600;letter-spacing:1px;text-transform:uppercase;margin-bottom:40px;transition:0.3s;text-decoration:none;" onmouseover="this.style.color='var(--purple)'" onmouseout="this.style.color='var(--gray)'">← Back</a>
+    
+    <div class="detail-grid">
+      <!-- Media Section -->
+      <div class="detail-images">
+        <div class="main-image">
+          {% if product.images.exists %}
+            <img id="mainImgObj" src="{{ product.images.first.image.url }}" alt="{{ product.name }}" style="max-height: 80%; transform: scale(1.0); object-fit: contain;"/>
+          {% else %}
+            <span id="mainEmojiObj">{{ product.emoji }}</span>
+          {% endif %}
+        </div>
+        
+        <div class="thumb-row">
+          {% if product.images.exists %}
+            {% for img_obj in product.images.all %}
+              <div class="thumb {% if forloop.first %}active{% endif %}" onclick="changeDetailImage('{{ img_obj.image.url }}', this)">
+                <img src="{{ img_obj.image.url }}" alt="thumb" style="max-height:80%; object-fit:contain;"/>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="thumb active" onclick="changeDetailEmoji('{{ product.emoji }}', this)">{{ product.emoji }}</div>
+            <div class="thumb" onclick="changeDetailEmoji('👑', this)">👑</div>
+            <div class="thumb" onclick="changeDetailEmoji('⚡', this)">⚡</div>
+          {% endif %}
+        </div>
+      </div>
+      
+      <!-- Content Section -->
+      <div class="detail-info">
+        <div class="detail-tag">{{ product.category.name|upper }}</div>
+        <h1 class="detail-name">{{ product.name }}</h1>
+        
+        <div class="detail-pricing">
+          <span class="detail-price">₹{{ product.sale_price_as_int }}</span>
+          {% if product.discount_percent > 0 %}
+          <span class="detail-original">₹{{ product.price_as_int }}</span>
+          <span class="detail-discount">{{ product.discount_percent }}% OFF</span>
+          {% endif %}
+        </div>
+        
+        <p class="detail-desc">{{ product.description }}</p>
+        
+        <!-- Cart Action Form -->
+        <form action="{% url 'cart:cart_add' product_id=product.id %}" method="post">
+          {% csrf_token %}
+          
+          <div class="size-label">Select Size</div>
+          <div class="sizes">
+            <input type="hidden" name="size" id="selectedSizeInput" value="M"/>
+            {% for size in sizes %}
+              <button type="button" class="size-btn {% if size == 'M' %}selected{% endif %}" data-size="{{ size }}" onclick="selectSize('{{ size }}', this)">
+                {{ size }}
+              </button>
+            {% endfor %}
+          </div>
+          
+          <div class="form-group" style="max-width: 120px; margin-bottom: 24px;">
+            <div class="size-label">Quantity</div>
+            <input type="number" name="quantity" class="form-input" value="1" min="1" max="{{ product.stock }}" style="text-align: center;"/>
+          </div>
+          
+          <div class="detail-actions">
+            {% if product.stock > 0 %}
+              <button type="submit" class="btn-primary" style="flex: 1; justify-content: center;">Add to Cart 🛒</button>
+            {% else %}
+              <button type="button" class="btn-ghost" style="flex: 1; justify-content: center; opacity: 0.5;" disabled>Out of Stock</button>
+            {% endif %}
+          </div>
+        </form>
+      </div>
+    </div>
+    
+    <!-- Related Section -->
+    {% if related_products %}
+    <div style="margin-top: 100px;">
+      <h3 style="font-family: var(--font-head); font-size: 24px; font-weight: 800; margin-bottom: 30px; letter-spacing: 1px;">RELATED DROPS</h3>
+      <div class="products-grid">
+        {% for p in related_products %}
+          <div class="product-card" data-id="{{ p.id }}">
+            <div class="product-img-wrap" style="cursor: pointer;" onclick="window.location.href='{% url 'products:product_detail' slug=p.slug %}'">
+              <div class="product-emoji">{{ p.emoji }}</div>
+              {% if p.discount_percent > 0 %}
+              <div class="discount-badge">-{{ p.discount_percent }}%</div>
+              {% endif %}
+            </div>
+            <div class="product-info">
+              <div class="product-name" style="cursor: pointer;" onclick="window.location.href='{% url 'products:product_detail' slug=p.slug %}'">{{ p.name }}</div>
+              <div class="product-pricing">
+                <span class="product-price">₹{{ p.sale_price_as_int }}</span>
+              </div>
+              <div class="product-actions">
+                <form action="{% url 'cart:cart_add' product_id=p.id %}" method="post" style="flex:1;">
+                  {% csrf_token %}
+                  <input type="hidden" name="size" value="M"/>
+                  <input type="hidden" name="quantity" value="1"/>
+                  <button type="submit" class="btn-cart" style="width:100%;">Add to Cart</button>
+                </form>
+                <a href="{% url 'products:product_detail' slug=p.slug %}" class="btn-buy" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;">Details</a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  function selectSize(size, element) {
+    document.getElementById('selectedSizeInput').value = size;
+    const btns = document.querySelectorAll('.size-btn');
+    btns.forEach(b => b.classList.remove('selected'));
+    element.classList.add('selected');
+  }
+
+  function changeDetailImage(src, element) {
+    document.getElementById('mainImgObj').src = src;
+    const thumbs = document.querySelectorAll('.thumb');
+    thumbs.forEach(t => t.classList.remove('active'));
+    element.classList.add('active');
+  }
+
+  function changeDetailEmoji(emoji, element) {
+    document.getElementById('mainEmojiObj').textContent = emoji;
+    const thumbs = document.querySelectorAll('.thumb');
+    thumbs.forEach(t => t.classList.remove('active'));
+    element.classList.add('active');
+  }
+</script>
+{% endblock %}

@@ -1,0 +1,6 @@
+{
+  "name": "NIRAZ",
+  "description": "Premium Men's Fashion eCommerce Platform - Elevate Your Style",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

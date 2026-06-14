@@ -1,0 +1,105 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Your Bag – NIRAZ{% endblock %}
+
+{% block content %}
+<div class="cart-page section">
+  <div class="container">
+    <h1 style="font-family:var(--font-display);font-size:clamp(40px,8vw,72px);letter-spacing:3px;margin-bottom:40px;">YOUR BAG</h1>
+    
+    <div class="cart-layout">
+      <!-- Items List -->
+      <div class="cart-items-wrapper">
+        {% if cart %}
+          {% for item in cart %}
+          <div class="cart-item">
+            <!-- Media -->
+            <div class="cart-item-img">
+              {% if item.product.images.exists %}
+                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" style="max-height:80%; object-fit:contain;"/>
+              {% else %}
+                {{ item.product.emoji }}
+              {% endif %}
+            </div>
+            
+            <!-- Details -->
+            <div class="cart-item-info">
+              <div class="cart-item-name" style="cursor:pointer;" onclick="window.location.href='{% url 'products:product_detail' slug=item.product.slug %}'">
+                {{ item.product.name }}
+              </div>
+              <div class="cart-item-size">Size: {{ item.size }}</div>
+              
+              <!-- Quantity Controls via instant mini-forms -->
+              <div class="qty-control">
+                <!-- Decrement form -->
+                <form action="{% url 'cart:cart_add' product_id=item.product.id %}" method="post" style="display:inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="size" value="{{ item.size }}"/>
+                  <input type="hidden" name="quantity" value="-1"/>
+                  <button type="submit" class="qty-btn">−</button>
+                </form>
+                
+                <span class="qty-num">{{ item.quantity }}</span>
+                
+                <!-- Increment form -->
+                <form action="{% url 'cart:cart_add' product_id=item.product.id %}" method="post" style="display:inline;">
+                  {% csrf_token %}
+                  <input type="hidden" name="size" value="{{ item.size }}"/>
+                  <input type="hidden" name="quantity" value="1"/>
+                  <button type="submit" class="qty-btn">+</button>
+                </form>
+              </div>
+            </div>
+            
+            <!-- Price and Remove -->
+            <div class="cart-item-right">
+              <div class="cart-item-price">₹{{ item.total_price_as_int }}</div>
+              <a href="{% url 'cart:cart_remove' product_id=item.product.id size=item.size %}" class="btn-remove">Remove</a>
+            </div>
+          </div>
+          {% endfor %}
+        {% else %}
+          <div class="empty-state">
+            <div class="empty-icon">🛒</div>
+            <h3>Your cart is empty</h3>
+            <p>Looks like you haven't added anything to your fashion bag yet.</p>
+            <a href="{% url 'products:category_detail' slug='trendy' %}" class="btn-primary">Start Shopping</a>
+          </div>
+        {% endif %}
+      </div>
+      
+      <!-- Summary Panel -->
+      {% if cart %}
+      <div class="cart-summary" id="cartSummary">
+        <div class="summary-title">Order Summary</div>
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span>₹{{ cart.get_subtotal_as_int }}</span>
+        </div>
+        <div class="summary-row">
+          <span>Discount (5%)</span>
+          <span>−₹{{ cart.get_discount_as_int }}</span>
+        </div>
+        <div class="summary-row">
+          <span>Shipping</span>
+          {% if cart.get_shipping_as_int == 0 %}
+            <span class="free">FREE</span>
+          {% else %}
+            <span>₹{{ cart.get_shipping_as_int }}</span>
+          {% endif %}
+        </div>
+        <div class="summary-row total">
+          <span>Total</span>
+          <span>₹{{ cart.get_total_as_int }}</span>
+        </div>
+        
+        <a href="{% url 'orders:order_create' %}" class="btn-primary checkout-btn" style="text-align:center; justify-content:center;">
+          Proceed to Checkout →
+        </a>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

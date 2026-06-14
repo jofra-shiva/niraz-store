@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Track Your Order – NIRAZ{% endblock %}
+
+{% block content %}
+<div class="track-page section" style="padding-top:140px;">
+  <div class="container">
+    <!-- Header -->
+    <div style="text-align:center; margin-bottom:48px;">
+      <h1 style="font-family:var(--font-display); font-size:clamp(48px,8vw,80px); letter-spacing:3px; margin-bottom:12px;">TRACK ORDER</h1>
+      <p style="color:var(--gray); font-size:15px;">Enter your phone number to search and view your order history and live delivery progress.</p>
+    </div>
+
+    <!-- Phone Number Core Search Form -->
+    <div class="track-form-wrap">
+      <div class="track-card">
+        <form method="get" action="{% url 'orders:order_track' %}">
+          <div class="form-group">
+            <label class="form-label" for="trackPhone">Phone Number</label>
+            <input class="form-input" type="tel" id="trackPhone" name="phone" value="{{ phone|default:'' }}" placeholder="+91 XXXXX XXXXX" required/>
+          </div>
+          <button type="submit" class="btn-primary" style="width:100%; justify-content:center; padding:16px;">
+            Search Order Logs →
+          </button>
+        </form>
+
+        <!-- Design structure prepped for seamless OTP integration in subsequent updates -->
+        <!-- Future Integration Hook: OTP token inputs can render here without altering parent CSS/templates -->
+
+        <!-- Results Block -->
+        {% if searched %}
+          <div class="track-result" id="trackResultContainer" style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 30px;">
+            <h3 style="font-family: var(--font-head); font-weight: 800; font-size: 18px; margin-bottom: 20px; text-transform: uppercase; color: var(--purple);">Search Results</h3>
+            
+            {% for order in orders %}
+              <div class="track-order-card" style="margin-bottom: 30px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:12px; margin-bottom:16px;">
+                  <div>
+                    <span style="font-family:var(--font-head); font-weight:800; color:var(--white);">Order ID: {{ order.tracking_code }}</span>
+                    <div style="font-size:12px; color:var(--gray); margin-top:2px;">Placed on: {{ order.created_at|date:"d M Y, h:i A" }}</div>
+                  </div>
+                  <div>
+                    <span style="font-family:var(--font-head); font-weight:800; color:var(--green); font-size:16px;">₹{{ order.total_amount_as_int }}</span>
+                  </div>
+                </div>
+
+                <!-- Products under this order -->
+                <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px;">
+                  {% for item in order.items.all %}
+                  <div style="display:flex; justify-content:space-between; align-items:center; background: rgba(255,255,255,0.02); padding: 10px; border-radius: 6px;">
+                    <div style="display:flex; align-items:center; gap:12px;">
+                      <span style="font-size:32px;">{{ item.product.emoji }}</span>
+                      <div>
+                        <div style="font-size:14px; font-weight:600; color:var(--white);">{{ item.product.name }}</div>
+                        <div style="font-size:12px; color:var(--gray);">Size: {{ item.size }} | Qty: {{ item.quantity }}</div>
+                      </div>
+                    </div>
+                    <div style="font-size:14px; font-weight:600; color:var(--gray);">₹{{ item.total_price_as_int }}</div>
+                  </div>
+                  {% endfor %}
+                </div>
+
+                <!-- Shipping Address details -->
+                <div style="font-size: 13px; color: var(--gray); line-height: 1.5; margin-bottom: 20px; padding: 10px; background: rgba(139,92,246,0.03); border: 1px dashed rgba(139,92,246,0.15); border-radius: 6px;">
+                  <strong>Deliver to:</strong> {{ order.customer_name }} (<span style="color:var(--white)">{{ order.phone_number }}</span>)<br/>
+                  {{ order.address }}, {{ order.city }} - {{ order.pincode }}, {{ order.state }}
+                </div>
+
+                <!-- Live steps tracker styled dynamically in alignment with order statuses -->
+                <div class="status-steps">
+                  <div class="status-step {% if order.order_status == 'Pending' or order.order_status == 'Packed' or order.order_status == 'Shipped' or order.order_status == 'Delivered' %}pending{% endif %}">
+                    📦 Pending
+                  </div>
+                  <div class="status-step {% if order.order_status == 'Packed' or order.order_status == 'Shipped' or order.order_status == 'Delivered' %}shipped{% endif %}">
+                    ✅ Packed
+                  </div>
+                  <div class="status-step {% if order.order_status == 'Shipped' or order.order_status == 'Delivered' %}shipped{% endif %}">
+                    🚚 Shipped
+                  </div>
+                  <div class="status-step {% if order.order_status == 'Delivered' %}delivered{% endif %}">
+                    🎉 Delivered
+                  </div>
+                </div>
+              </div>
+            {% empty %}
+              <div class="empty-state" style="padding: 20px 0;">
+                <div class="empty-icon" style="font-size: 36px;">🔍</div>
+                <h3>No orders found</h3>
+                <p>We couldn't find any orders matching phone number "<strong>{{ phone }}</strong>". Double-check the number or try checkout on the cart page!</p>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

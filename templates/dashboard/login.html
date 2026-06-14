@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Owner Access Required – NIRAZ{% endblock %}
+
+{% block content %}
+<div class="checkout-page" style="padding-top:140px;">
+  <div class="container">
+    <div class="checkout-form" style="max-width: 450px;">
+      <div class="checkout-title" style="font-size: 32px; letter-spacing: 2px;">OWNER LOGIN</div>
+      <p style="text-align: center; color: var(--gray); font-size:13px; margin-bottom: 24px; font-family: var(--font-head); text-transform: uppercase; letter-spacing: 1px;">Access Dashboard Operations</p>
+      
+      <form method="post" action="{% url 'dashboard:owner_login' %}">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+          <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #EF4444; border-radius: 6px; padding: 12px; margin-bottom: 16px; font-size:13px;">
+            {{ form.non_field_errors.0 }}
+          </div>
+        {% endif %}
+        
+        {% for field in form %}
+          <div class="form-group">
+            <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            <!-- Add form-input class to standard admin field widgets -->
+            <input type="{% if field.name == 'password' %}password{% else %}text{% endif %}" name="{{ field.html_name }}" id="{{ field.id_for_label }}" class="form-input" placeholder="Enter {{ field.label }}" required/>
+            {% if field.errors %}
+              <p style="color: #EF4444; font-size:12px; margin-top: 4px;">{{ field.errors.0 }}</p>
+            {% endif %}
+          </div>
+        {% endfor %}
+        
+        <button type="submit" class="btn-primary pay-btn" style="justify-content:center; padding:16px; margin-top:10px;">
+          Authenticate Access →
+        </button>
+      </form>
+      
+      <p style="color: var(--gray2); font-size: 11px; text-align: center; margin-top: 20px;">
+        To create dashboard users, run standard python shell creates: <br/>
+        <code>python manage.py createsuperuser</code>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

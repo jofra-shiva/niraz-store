@@ -109,14 +109,13 @@ MEDIA_ROOT = BASE_DIR / 'media'
 # Cloudinary Integration (Configured dynamically if CLOUDINARY_URL is set)
 CLOUDINARY_URL = os.getenv('CLOUDINARY_URL')
 
-STORAGES = {
-    "default": {
-        "BACKEND": "cloudinary_storage.storage.MediaCloudinaryStorage",
-    },
-    "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
-    },
-}
+if CLOUDINARY_URL:
+    DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+    CLOUDINARY_STORAGE = {
+        'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+        'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+        'API_SECRET': os.getenv('CLOUDINARY_API_SECRET'),
+    }
 
 # Session cart identification key
 CART_SESSION_ID = 'cart'

@@ -22,7 +22,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
+
+    # Cloudinary
+    'cloudinary',
+    'cloudinary_storage',
+
     # Custom Apps
     'core',
     'products',

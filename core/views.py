@@ -16,3 +16,7 @@ def index(request):
         'featured_products': featured_products,
     }
     return render(request, 'index.html', context)
+
+#contact
+def contact(request):
+    return render(request, 'contact.html')

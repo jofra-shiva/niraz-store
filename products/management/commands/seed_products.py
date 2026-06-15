@@ -1,5 +1,4 @@
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
 from products.models import Category, Product
 from django.utils.text import slugify
 
@@ -329,23 +328,5 @@ class Command(BaseCommand):
                 self.stdout.write(f"Product drop '{prod.name}' seeded.")
             else:
                 self.stdout.write(f"Product '{prod.name}' already exists.")
-
-        self.stdout.write("Bootstrapping Superuser record for Dashboard login...")
-        owner_username = "nrz_owner"
-        owner_email = "owner@niraz.in"
-        owner_pass = "Password123"
-        
-        if not User.objects.filter(username=owner_username).exists():
-            User.objects.create_superuser(
-                username=owner_username,
-                email=owner_email,
-                password=owner_pass
-            )
-            self.stdout.write(f"=== SUPERUSER CREATED SUCCESS ===")
-            self.stdout.write(f"Username: {owner_username}")
-            self.stdout.write(f"Password: {owner_pass}")
-            self.stdout.write("=================================")
-        else:
-            self.stdout.write("Superuser 'nrz_owner' already exists.")
 
         self.stdout.write(self.style.SUCCESS("Database seeding completed successfully!"))

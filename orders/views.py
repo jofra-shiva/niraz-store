@@ -42,7 +42,7 @@ def order_create(request):
                     'amount': amount_in_paise,
                     'currency': 'INR',
                     'receipt': f"order_rcpt_{order.id}",
-                    'payment_capture': 1
+                    'payment_capture': '1'
                 })
                 # We can store the razorpay order id on the order or pass it directly to payment check templates
                 request.session['order_pay_id'] = order.id

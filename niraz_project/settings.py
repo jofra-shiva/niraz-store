@@ -132,8 +132,8 @@ LOGIN_URL = '/dashboard/login/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Razorpay credentials
-RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID', 'rzp_test_example_id_12345')
-RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET', 'test_example_secret_abcde')
+RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
 
 # Add WhiteNoise config to requirements if needed (recommended for static serving)
 # We can include whitenoise directly in requirements.txt or handle static securely.

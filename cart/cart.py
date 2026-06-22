@@ -81,11 +81,7 @@ class Cart:
         return (subtotal * Decimal('0.05')).quantize(Decimal('1.00'))
 
     def get_shipping(self):
-        """Free shipping above 999 else 99, matching the frontend cart.html."""
-        subtotal = self.get_subtotal()
-        if subtotal > 999 or subtotal == 0:
-            return Decimal('0.00')
-        return Decimal('99.00')
+        return Decimal('0.00')
 
     def get_total(self):
         """Returns total order amount incorporating discount and shipping."""

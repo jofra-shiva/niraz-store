@@ -31,9 +31,6 @@ def order_create(request):
                     quantity=item['quantity'],
                     price=item['price']
                 )
-            print("KEY ID:", settings.RAZORPAY_KEY_ID)
-            print("SECRET EXISTS:", settings.RAZORPAY_KEY_SECRET is not None)
-            print("ORDER TOTAL:", order.total_amount)
 
             # Set up Razorpay integration variables
             # Set up Razorpay integration variables
@@ -58,15 +55,8 @@ def order_create(request):
                 })
 
             except Exception as e:
-
-                print("========== RAZORPAY DEBUG ==========")
-                print("KEY:", settings.RAZORPAY_KEY_ID)
-                print("SECRET EXISTS:", bool(settings.RAZORPAY_KEY_SECRET))
-                print("TOTAL:", order.total_amount)
-                print("PAISE:", amount_in_paise)
                 print("ERROR:", repr(e))
                 traceback.print_exc()
-
                 raise
                 
     return render(request, 'orders/checkout.html', {

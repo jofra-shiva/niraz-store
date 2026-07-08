@@ -16,17 +16,14 @@ def order_create(request):
         form = OrderCreateForm(request.POST)
         if form.is_valid():
             # Create Order instance without saving to DB yet
-            print("STEP 1")
             order = form.save(commit=False)
             order.subtotal = cart.get_subtotal()
             order.discount = cart.get_discount()
             order.total_amount = cart.get_total()
             order.save()
-            print("STEP 2")
             
             # Create OrderItems for each item in Cart
             for item in cart:
-                print("STEP 3")
                 OrderItem.objects.create(
                     order=order,
                     product=item['product'],
@@ -34,7 +31,6 @@ def order_create(request):
                     quantity=item['quantity'],
                     price=item['price']
                 )
-            print("STEP 4")
             print("KEY ID:", settings.RAZORPAY_KEY_ID)
             print("SECRET EXISTS:", settings.RAZORPAY_KEY_SECRET is not None)
             print("ORDER TOTAL:", order.total_amount)
@@ -43,16 +39,13 @@ def order_create(request):
             # Set up Razorpay integration variables
             client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
             amount_in_paise = int(order.total_amount * 100)
-            print("STEP 5", amount_in_paise)
 
             try:
-                print("STEP 6")
                 razorpay_order = client.order.create({
                     'amount': amount_in_paise,
                     'currency': 'INR',
                     'receipt': f"order_rcpt_{order.id}",
                 })
-                print("STEP 7")
 
                 request.session['order_pay_id'] = order.id
                 request.session['razorpay_order_id'] = razorpay_order['id']

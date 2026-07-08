@@ -4,7 +4,7 @@ from cart.cart import Cart
 from .models import Order, OrderItem
 from .forms import OrderCreateForm
 import razorpay
-
+import traceback
 
 def order_create(request):
     cart = Cart(request)
@@ -56,6 +56,8 @@ def order_create(request):
                     'amount_in_paise': amount_in_paise,
                 })
             except Exception as e:
+                traceback.print_exc()
+                print("RAZORPAY ERROR:", repr(e))
                 return render(request, 'payments/failure.html', {
                     'error': str(e)
                 })

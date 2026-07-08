@@ -4,13 +4,28 @@ from products.models import Product
 
 
 class Cart:
-    def __init__(self, request):
-        """Initialize the cart in Django session."""
-        self.session = request.session
-        cart = self.session.get(settings.CART_SESSION_ID)
-        if not cart:
-            cart = self.session[settings.CART_SESSION_ID] = {}
-        self.cart = cart
+    def __iter__(self):
+        """Iterate over cart items without modifying the session."""
+        product_ids = [item["product_id"] for item in self.cart.values()]
+        products = Product.objects.in_bulk(product_ids)
+
+        for cart_key, item in self.cart.items():
+            product = products.get(int(item["product_id"]))
+
+            if product:
+                # IMPORTANT: work on a copy
+                cart_item = item.copy()
+
+                cart_item["product"] = product
+                cart_item["price"] = Decimal(cart_item["price"])
+                cart_item["total_price"] = (
+                        cart_item["price"] * cart_item["quantity"]
+                )
+
+                cart_item["price_as_int"] = int(cart_item["price"])
+                cart_item["total_price_as_int"] = int(cart_item["total_price"])
+
+                yield cart_item
 
     def add(self, product, size='M', quantity=1, override_quantity=False):
         """Add a product to the cart or update its quantity."""

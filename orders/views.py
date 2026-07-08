@@ -58,9 +58,7 @@ def order_create(request):
             except Exception as e:
                 traceback.print_exc()
                 print("RAZORPAY ERROR:", repr(e))
-                return render(request, 'payments/failure.html', {
-                    'error': str(e)
-                })
+                raise
                 
     return render(request, 'orders/checkout.html', {
         'cart': cart,

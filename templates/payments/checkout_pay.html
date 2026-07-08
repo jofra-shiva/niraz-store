@@ -1,37 +1,59 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Checkout Test</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-<h1>Checkout Works</h1>
+{% block title %}Secure Checkout{% endblock %}
 
-<p>Order ID: {{ razorpay_order_id }}</p>
-<p>Amount: {{ amount_in_paise }}</p>
+{% block content %}
+<div class="container" style="margin-top:120px; text-align:center;">
 
-<button id="pay">Pay</button>
+    <h2>Secure Checkout</h2>
 
+    <p>Order ID: {{ razorpay_order_id }}</p>
+
+    <p>Amount: ₹{{ order.total_amount }}</p>
+
+    <button id="payButton" class="btn btn-dark">
+        Pay Securely
+    </button>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
-const options = {
+
+var options = {
+
     key: "{{ razorpay_key_id }}",
+
     amount: "{{ amount_in_paise }}",
+
     currency: "INR",
+
     order_id: "{{ razorpay_order_id }}",
 
-    handler: function (response) {
-        alert("Payment Success");
+    name: "NIRAZ",
+
+    description: "Payment",
+
+    handler: function(response){
+
+        alert("Payment Successful");
+
     }
+
 };
 
-const rzp = new Razorpay(options);
+var rzp = new Razorpay(options);
 
-document.getElementById("pay").onclick = function () {
+document.getElementById("payButton").onclick = function(e){
+
     rzp.open();
-};
-</script>
 
-</body>
-</html>
+    e.preventDefault();
+
+};
+
+</script>
+{% endblock %}

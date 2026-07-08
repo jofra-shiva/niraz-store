@@ -16,14 +16,17 @@ def order_create(request):
         form = OrderCreateForm(request.POST)
         if form.is_valid():
             # Create Order instance without saving to DB yet
+            print("STEP 1")
             order = form.save(commit=False)
             order.subtotal = cart.get_subtotal()
             order.discount = cart.get_discount()
             order.total_amount = cart.get_total()
             order.save()
+            print("STEP 2")
             
             # Create OrderItems for each item in Cart
             for item in cart:
+                print("STEP 3")
                 OrderItem.objects.create(
                     order=order,
                     product=item['product'],
@@ -31,33 +34,46 @@ def order_create(request):
                     quantity=item['quantity'],
                     price=item['price']
                 )
-            
+            print("STEP 4")
+            print("KEY ID:", settings.RAZORPAY_KEY_ID)
+            print("SECRET EXISTS:", settings.RAZORPAY_KEY_SECRET is not None)
+            print("ORDER TOTAL:", order.total_amount)
+
+            # Set up Razorpay integration variables
             # Set up Razorpay integration variables
             client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
             amount_in_paise = int(order.total_amount * 100)
-            
+            print("STEP 5", amount_in_paise)
+
             try:
-                # Create Razorpay Order
-                razorpay_order = client.order.create(data={
+                print("STEP 6")
+                razorpay_order = client.order.create({
                     'amount': amount_in_paise,
                     'currency': 'INR',
                     'receipt': f"order_rcpt_{order.id}",
-                    'payment_capture': '1'
                 })
-                # We can store the razorpay order id on the order or pass it directly to payment check templates
+                print("STEP 7")
+
                 request.session['order_pay_id'] = order.id
                 request.session['razorpay_order_id'] = razorpay_order['id']
-                
-                # Navigate to checkout payment routing
+
                 return render(request, 'payments/checkout_pay.html', {
                     'order': order,
                     'razorpay_order_id': razorpay_order['id'],
                     'razorpay_key_id': settings.RAZORPAY_KEY_ID,
                     'amount_in_paise': amount_in_paise,
                 })
+
             except Exception as e:
+
+                print("========== RAZORPAY DEBUG ==========")
+                print("KEY:", settings.RAZORPAY_KEY_ID)
+                print("SECRET EXISTS:", bool(settings.RAZORPAY_KEY_SECRET))
+                print("TOTAL:", order.total_amount)
+                print("PAISE:", amount_in_paise)
+                print("ERROR:", repr(e))
                 traceback.print_exc()
-                print("RAZORPAY ERROR:", repr(e))
+
                 raise
                 
     return render(request, 'orders/checkout.html', {

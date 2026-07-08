@@ -47,12 +47,9 @@ def order_create(request):
                 request.session['order_pay_id'] = order.id
                 request.session['razorpay_order_id'] = razorpay_order['id']
 
-                return render(request, 'payments/checkout_pay.html', {
-                    'order': order,
-                    'razorpay_order_id': razorpay_order['id'],
-                    'razorpay_key_id': settings.RAZORPAY_KEY_ID,
-                    'amount_in_paise': amount_in_paise,
-                })
+                from django.http import HttpResponse
+
+                return HttpResponse("SUCCESS")
 
             except Exception as e:
                 print("ERROR:", repr(e))

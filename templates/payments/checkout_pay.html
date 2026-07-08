@@ -1,132 +1,77 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Secure Checkout | NIRAZ{% endblock %}
+{% block title %}Redirecting to Secure Gateway – NIRAZ{% endblock %}
 
 {% block content %}
 <div class="success-page" style="padding-top:140px;">
-    <div class="success-card">
+  <div class="success-card">
+    <div class="success-icon">🔒</div>
+    <h1>SECURE CHECKOUT</h1>
+    <p>Please complete payment via our secure processing gateway Razorpay below.</p>
 
-        <div class="success-icon">🔒</div>
-
-        <h1>Secure Checkout</h1>
-
-        <p>Please complete your payment securely using Razorpay.</p>
-
-        <div style="background:var(--card2);
-                    border:1px solid var(--border);
-                    border-radius:10px;
-                    padding:20px;
-                    margin-bottom:25px;
-                    text-align:left;">
-
-            <p><strong>Customer:</strong> {{ order.customer_name }}</p>
-            <p><strong>Order ID:</strong> {{ order.tracking_code }}</p>
-            <p><strong>Amount:</strong> ₹{{ order.total_amount }}</p>
-
-        </div>
-
-        <button id="payButton"
-                class="btn-primary"
-                style="width:100%;justify-content:center;padding:16px;">
-            Pay Securely
-        </button>
-
+    <div style="background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:20px; margin-bottom:28px; text-align:left;">
+      <div style="font-family:var(--font-head); font-size:12px; font-weight:700; color:var(--purple); margin-bottom:8px; text-transform:uppercase;">Transaction Info</div>
+      <div style="color:var(--gray); font-size:14px; margin-bottom:4px;">Customer Name: <span style="color:var(--white); font-weight:600;">{{ order.customer_name }}</span></div>
+      <div style="color:var(--gray); font-size:14px; margin-bottom:4px;">Order Code: <span style="color:var(--white); font-weight:600;">{{ order.tracking_code }}</span></div>
+      <div style="color:var(--gray); font-size:14px;">Total Amount: <span style="color:var(--white); font-weight:600;">₹{{ order.total_amount_as_int }}</span></div>
     </div>
+
+    <button id="payButton" class="btn-primary" style="width:100%; justify-content:center; padding:16px;">
+      Launch Sandbox Wallet 💳
+    </button>
+  </div>
 </div>
 
-<form id="verifyForm"
-      action="{% url 'payments:payment_verify' %}"
-      method="POST"
-      style="display:none;">
-
-    {% csrf_token %}
-
-    <input type="hidden"
-           id="razorpay_payment_id"
-           name="razorpay_payment_id">
-
-    <input type="hidden"
-           id="razorpay_order_id"
-           name="razorpay_order_id"
-           value="{{ razorpay_order_id }}">
-
-    <input type="hidden"
-           id="razorpay_signature"
-           name="razorpay_signature">
-
+<!-- Forms submission container to capture verification details securely -->
+<form id="verifyForm" action="{% url 'payments:payment_verify' %}" method="post" style="display:none;">
+  {% csrf_token %}
+  <input type="hidden" name="razorpay_payment_id" id="rzp_payment_id"/>
+  <input type="hidden" name="razorpay_order_id" id="rzp_order_id" value="{{ razorpay_order_id }}"/>
+  <input type="hidden" name="razorpay_signature" id="rzp_signature"/>
 </form>
-
 {% endblock %}
 
 {% block extra_js %}
-
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
 <script>
-
-const options = {
-
-    key: "{{ razorpay_key_id }}",
-
-    amount: "{{ amount_in_paise }}",
-
-    currency: "INR",
-
-    name: "NIRAZ",
-
-    description: "Order Payment",
-
-    order_id: "{{ razorpay_order_id }}",
-
-    prefill: {
-
-        name: "{{ order.customer_name }}",
-
-        contact: "{{ order.phone_number }}"
-
+  const options = {
+    "key": "{{ razorpay_key_id }}",
+    "amount": "{{ amount_in_paise }}",
+    "currency": "INR",
+    "name": "NIRAZ Store",
+    "description": "Premium Men's Fashion payment confirmation",
+    "image": "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=100&q=80",
+    "order_id": "{{ razorpay_order_id }}",
+    "handler": function (response) {
+      document.getElementById('rzp_payment_id').value = response.razorpay_payment_id;
+      document.getElementById('rzp_signature').value = response.razorpay_signature;
+      document.getElementById('verifyForm').submit();
     },
-
-    theme: {
-
-        color: "#8B5CF6"
-
+    "prefill": {
+      "name": "{{ order.customer_name }}",
+      "contact": "{{ order.phone_number }}"
     },
-
-    handler: function(response){
-
-        document.getElementById("razorpay_payment_id").value =
-            response.razorpay_payment_id;
-
-        document.getElementById("razorpay_signature").value =
-            response.razorpay_signature;
-
-        document.getElementById("verifyForm").submit();
-
+    "theme": {
+      "color": "#8B5CF6"
     },
-
-    modal:{
-
-        ondismiss:function(){
-
-            window.location.href="{% url 'payments:payment_failed' %}";
-
-        }
-
+    "modal": {
+      "ondismiss": function() {
+        window.location.href = "{% url 'payments:payment_failed' %}";
+      }
     }
+  };
 
-};
+  const rzp = new Razorpay(options);
 
-const rzp = new Razorpay(options);
-
-document.getElementById("payButton").addEventListener("click",function(e){
-
-    e.preventDefault();
-
+  document.getElementById('payButton').onclick = function(e){
     rzp.open();
+    e.preventDefault();
+  }
 
-});
-
+  // Auto-launch Razorpay widget
+  window.onload = function() {
+    rzp.open();
+  }
 </script>
-
 {% endblock %}

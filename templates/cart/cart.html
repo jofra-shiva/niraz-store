@@ -78,9 +78,9 @@
           <span>₹{{ cart.get_subtotal_as_int }}</span>
         </div>
         <div class="summary-row">
-          <span>Discount (5%)</span>
-          <span>−₹{{ cart.get_discount_as_int }}</span>
-        </div>
+    <span>Discount</span>
+    <span>₹0</span>
+</div>
         <div class="summary-row">
           <span>Shipping</span>
           {% if cart.get_shipping_as_int == 0 %}

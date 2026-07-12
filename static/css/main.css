@@ -880,3 +880,25 @@ img { max-width: 100%; display: block; }
   .footer-grid { grid-template-columns: 1fr; }
   .stat-card-grid { grid-template-columns: 1fr; }
 }
+/* Mobile Fix */
+@media (max-width: 768px) {
+
+    .detail-grid {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .detail-images {
+        position: static;
+        top: auto;
+    }
+
+    .main-image {
+        height: 380px;
+    }
+
+    .thumb-row {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}

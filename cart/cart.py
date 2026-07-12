@@ -77,8 +77,7 @@ class Cart:
         )
 
     def get_discount(self):
-        subtotal = self.get_subtotal()
-        return (subtotal * Decimal("0.05")).quantize(Decimal("1.00"))
+        return Decimal("0.00")
 
     def get_shipping(self):
         return Decimal("0.00")

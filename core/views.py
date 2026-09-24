@@ -9,7 +9,7 @@ def index(request):
     featured_products = Product.objects.filter(available=True, featured=True)[:8]
     if not featured_products.exists():
         # Fallback to standard products if no products are marked as featured yet
-        featured_products = Product.objects.filter(available=True)[:8]
+        featured_products = Product.objects.filter(available=True)[:20]
         
     context = {
         'categories': categories,

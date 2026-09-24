@@ -86,12 +86,22 @@
       <div class="products-grid">
         {% for p in related_products %}
           <div class="product-card" data-id="{{ p.id }}">
-            <div class="product-img-wrap" style="cursor: pointer;" onclick="window.location.href='{% url 'products:product_detail' slug=p.slug %}'">
-              <div class="product-emoji">{{ p.emoji }}</div>
-              {% if p.discount_percent > 0 %}
-              <div class="discount-badge">-{{ p.discount_percent }}%</div>
-              {% endif %}
-            </div>
+           <div class="product-img-wrap"
+     style="cursor: pointer;"
+     onclick="window.location.href='{% url 'products:product_detail' slug=p.slug %}'">
+
+    {% if p.images.exists %}
+        <img src="{{ p.images.first.image.url }}"
+             alt="{{ p.name }}"
+             style="width: 100%; height: 100%; object-fit: contain;">
+    {% else %}
+        <div class="product-emoji">{{ p.emoji }}</div>
+    {% endif %}
+
+    {% if p.discount_percent > 0 %}
+        <div class="discount-badge">-{{ p.discount_percent }}%</div>
+    {% endif %}
+</div>
             <div class="product-info">
               <div class="product-name" style="cursor: pointer;" onclick="window.location.href='{% url 'products:product_detail' slug=p.slug %}'">{{ p.name }}</div>
               <div class="product-pricing">

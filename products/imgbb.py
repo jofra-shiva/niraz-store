@@ -6,9 +6,6 @@ IMGBB_UPLOAD_URL = "https://api.imgbb.com/1/upload"
 
 
 def upload_to_imgbb(image_file):
-    """
-    Upload an image to ImgBB and return the hosted image URL.
-    """
 
     api_key = settings.IMGBB_API_KEY
 
@@ -31,7 +28,7 @@ def upload_to_imgbb(image_file):
 
     except requests.RequestException as e:
         raise ValueError(
-            f"ImgBB connection failed: {str(e)}"
+            f"ImgBB connection failed: {e}"
         )
 
     if response.status_code != 200:
@@ -39,12 +36,7 @@ def upload_to_imgbb(image_file):
             f"ImgBB upload failed: {response.text}"
         )
 
-    try:
-        data = response.json()
-    except ValueError:
-        raise ValueError(
-            "ImgBB returned an invalid response."
-        )
+    data = response.json()
 
     if not data.get("success"):
         raise ValueError(
@@ -54,13 +46,6 @@ def upload_to_imgbb(image_file):
             )
         )
 
-    image_data = data.get("data", {})
-
-    image_url = image_data.get("url")
-
-    if not image_url:
-        raise ValueError(
-            "ImgBB did not return an image URL."
-        )
+    image_url = data["data"]["url"]
 
     return image_url

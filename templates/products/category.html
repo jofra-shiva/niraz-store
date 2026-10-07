@@ -32,18 +32,42 @@
      style="cursor:pointer;"
      onclick="window.location.href='{% url 'products:product_detail' slug=p.slug %}'">
 
-    {% for image in p.images.all %}
-        {% if forloop.first %}
-            <img src="{{ image.image.url }}"
-                 alt="{{ p.name }}"
-                 style="width:100%;
-                        height:240px;
-                        object-fit:cover;
-                        display:block;">
+    <div class="product-img-wrap"
+     style="cursor:pointer;"
+     onclick="window.location.href='{% url 'products:product_detail' slug=p.slug %}'">
+
+    {% with image=p.images.first %}
+
+        {% if image %}
+            <img
+                src="{{ image.image.url }}"
+                alt="{{ p.name }}"
+                style="width:100%;
+                       height:240px;
+                       object-fit:cover;
+                       display:block;"
+            >
+        {% else %}
+            <div class="product-emoji">
+                {{ p.emoji|default:"👕" }}
+            </div>
         {% endif %}
-    {% empty %}
-        <div class="product-emoji">{{ p.emoji }}</div>
-    {% endfor %}
+
+    {% endwith %}
+
+    {% if p.discount_percent > 0 %}
+        <div class="discount-badge">
+            -{{ p.discount_percent }}%
+        </div>
+    {% endif %}
+
+    {% if p.is_new %}
+        <div class="new-badge">
+            NEW
+        </div>
+    {% endif %}
+
+</div>
 
     {% if p.discount_percent > 0 %}
         <div class="discount-badge">-{{ p.discount_percent }}%</div>

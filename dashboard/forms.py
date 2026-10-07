@@ -4,8 +4,6 @@ from products.models import Product
 
 class ProductForm(forms.ModelForm):
 
-    # This is NOT stored directly on Product.
-    # It is handled separately in views.py and saved to ProductImage.
     image = forms.ImageField(
         required=False,
         label="Product Image",
@@ -19,6 +17,7 @@ class ProductForm(forms.ModelForm):
 
     class Meta:
         model = Product
+
         fields = [
             "category",
             "name",
@@ -34,9 +33,7 @@ class ProductForm(forms.ModelForm):
 
         widgets = {
             "category": forms.Select(
-                attrs={
-                    "class": "form-control",
-                }
+                attrs={"class": "form-control"}
             ),
 
             "name": forms.TextInput(
@@ -88,21 +85,15 @@ class ProductForm(forms.ModelForm):
             ),
 
             "available": forms.CheckboxInput(
-                attrs={
-                    "class": "form-check-input",
-                }
+                attrs={"class": "form-check-input"}
             ),
 
             "featured": forms.CheckboxInput(
-                attrs={
-                    "class": "form-check-input",
-                }
+                attrs={"class": "form-check-input"}
             ),
 
             "is_new": forms.CheckboxInput(
-                attrs={
-                    "class": "form-check-input",
-                }
+                attrs={"class": "form-check-input"}
             ),
         }
 

@@ -1,58 +1,144 @@
+import os
+import requests
+
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
 from django.db.models import Sum, Count
+from django.contrib import messages
 
-from products.models import Product, Category, ProductImage
+from products.models import Product, ProductImage
 from orders.models import Order, OrderItem
-from payments.models import Payment
 
 from .forms import ProductForm
-from products.imgbb import upload_to_imgbb
 
 
-# =========================================================
+# ============================================================
+# IMGBB UPLOAD
+# ============================================================
+
+def upload_to_imgbb(uploaded_file):
+    """
+    Upload an image to ImgBB and return the public image URL.
+    """
+
+    api_key = os.getenv("IMGBB_API_KEY")
+
+    if not api_key:
+        raise ValueError(
+            "IMGBB_API_KEY is missing. "
+            "Add it to your environment variables."
+        )
+
+    try:
+        uploaded_file.seek(0)
+
+        response = requests.post(
+            "https://api.imgbb.com/1/upload",
+            params={
+                "key": api_key,
+            },
+            files={
+                "image": (
+                    uploaded_file.name,
+                    uploaded_file,
+                    uploaded_file.content_type,
+                )
+            },
+            timeout=60,
+        )
+
+        response.raise_for_status()
+
+    except requests.RequestException as exc:
+        raise ValueError(
+            f"Could not connect to ImgBB: {exc}"
+        )
+
+    try:
+        data = response.json()
+    except ValueError:
+        raise ValueError(
+            "ImgBB returned an invalid response."
+        )
+
+    if not data.get("success"):
+        error_message = (
+            data.get("error", {})
+            .get("message", "ImgBB upload failed.")
+        )
+
+        raise ValueError(error_message)
+
+    image_data = data.get("data", {})
+
+    # Direct image URL
+    image_url = image_data.get("url")
+
+    if not image_url:
+        # Fallback
+        image_url = image_data.get("display_url")
+
+    if not image_url:
+        raise ValueError(
+            "ImgBB uploaded the image but did not return an image URL."
+        )
+
+    return image_url
+
+
+# ============================================================
 # OWNER LOGIN
-# =========================================================
+# ============================================================
 
 def owner_login(request):
+
     if request.user.is_authenticated:
         return redirect("dashboard:dashboard_home")
 
     form = AuthenticationForm()
 
     if request.method == "POST":
-        form = AuthenticationForm(data=request.POST)
+
+        form = AuthenticationForm(
+            request,
+            data=request.POST
+        )
 
         if form.is_valid():
+
             user = form.get_user()
+
             login(request, user)
 
-            return redirect("dashboard:dashboard_home")
+            return redirect(
+                "dashboard:dashboard_home"
+            )
 
     return render(
         request,
         "dashboard/login.html",
-        {"form": form}
+        {
+            "form": form
+        }
     )
 
 
-# =========================================================
-# OWNER LOGOUT
-# =========================================================
-
 @login_required
 def owner_logout(request):
+
     logout(request)
 
-    return redirect("dashboard:owner_login")
+    return redirect(
+        "dashboard:owner_login"
+    )
 
 
-# =========================================================
+# ============================================================
 # DASHBOARD HOME
-# =========================================================
+# ============================================================
 
 @login_required
 def dashboard_home(request):
@@ -65,7 +151,7 @@ def dashboard_home(request):
         completed_orders.aggregate(
             Sum("total_amount")
         )["total_amount__sum"]
-        or 0.00
+        or 0
     )
 
     total_orders = Order.objects.count()
@@ -76,9 +162,11 @@ def dashboard_home(request):
         order_status=Order.STATUS_PENDING
     ).count()
 
-    recent_orders = Order.objects.order_by(
-        "-created_at"
-    )[:8]
+    recent_orders = (
+        Order.objects
+        .select_related()
+        .order_by("-created_at")[:8]
+    )
 
     context = {
         "total_revenue": int(total_revenue),
@@ -95,15 +183,17 @@ def dashboard_home(request):
     )
 
 
-# =========================================================
+# ============================================================
 # PRODUCT LIST
-# =========================================================
+# ============================================================
 
 @login_required
 def product_list(request):
 
-    products = Product.objects.all().order_by(
-        "-created_at"
+    products = (
+        Product.objects
+        .prefetch_related("images")
+        .order_by("-created_at")
     )
 
     return render(
@@ -115,14 +205,12 @@ def product_list(request):
     )
 
 
-# =========================================================
+# ============================================================
 # ADD PRODUCT
-# =========================================================
+# ============================================================
 
 @login_required
 def product_add(request):
-
-    form = ProductForm()
 
     if request.method == "POST":
 
@@ -133,52 +221,27 @@ def product_add(request):
 
         if form.is_valid():
 
-            # Save product information
-            product = form.save()
-
-            # Get uploaded image
             uploaded_image = request.FILES.get("image")
+
+            # ------------------------------------------------
+            # Upload image FIRST
+            # ------------------------------------------------
+
+            image_url = None
 
             if uploaded_image:
 
                 try:
 
-                    # Upload image to ImgBB
                     image_url = upload_to_imgbb(
                         uploaded_image
                     )
 
-                    # Find next display order
-                    last_image = (
-                        ProductImage.objects
-                        .filter(product=product)
-                        .order_by("-display_order")
-                        .first()
-                    )
-
-                    if last_image:
-                        display_order = (
-                            last_image.display_order + 1
-                        )
-                    else:
-                        display_order = 1
-
-                    # Save ImgBB URL in PostgreSQL
-                    ProductImage.objects.create(
-                        product=product,
-                        image=image_url,
-                        display_order=display_order
-                    )
-
-                except Exception as e:
-
-                    # If ImgBB upload fails,
-                    # remove the newly created product
-                    product.delete()
+                except Exception as exc:
 
                     form.add_error(
                         "image",
-                        f"Image upload failed: {e}"
+                        f"Image upload failed: {exc}"
                     )
 
                     return render(
@@ -186,27 +249,54 @@ def product_add(request):
                         "dashboard/product_form.html",
                         {
                             "form": form,
-                            "title": "Add Product"
+                            "title": "Add Product",
                         }
                     )
+
+            # ------------------------------------------------
+            # Save product
+            # ------------------------------------------------
+
+            product = form.save()
+
+            # ------------------------------------------------
+            # Save ImgBB URL
+            # ------------------------------------------------
+
+            if image_url:
+
+                ProductImage.objects.create(
+                    product=product,
+                    image=image_url,
+                    display_order=1
+                )
+
+            messages.success(
+                request,
+                "Product added successfully."
+            )
 
             return redirect(
                 "dashboard:product_list"
             )
+
+    else:
+
+        form = ProductForm()
 
     return render(
         request,
         "dashboard/product_form.html",
         {
             "form": form,
-            "title": "Add Product"
+            "title": "Add Product",
         }
     )
 
 
-# =========================================================
+# ============================================================
 # EDIT PRODUCT
-# =========================================================
+# ============================================================
 
 @login_required
 def product_edit(request, pk):
@@ -214,10 +304,6 @@ def product_edit(request, pk):
     product = get_object_or_404(
         Product,
         pk=pk
-    )
-
-    form = ProductForm(
-        instance=product
     )
 
     if request.method == "POST":
@@ -230,47 +316,25 @@ def product_edit(request, pk):
 
         if form.is_valid():
 
-            product = form.save()
+            uploaded_image = request.FILES.get("image")
 
-            uploaded_image = request.FILES.get(
-                "image"
-            )
+            # ------------------------------------------------
+            # Upload new image if provided
+            # ------------------------------------------------
 
             if uploaded_image:
 
                 try:
 
-                    # Upload new image to ImgBB
                     image_url = upload_to_imgbb(
                         uploaded_image
                     )
 
-                    # Find next display order
-                    last_image = (
-                        ProductImage.objects
-                        .filter(product=product)
-                        .order_by("-display_order")
-                        .first()
-                    )
-
-                    if last_image:
-                        display_order = (
-                            last_image.display_order + 1
-                        )
-                    else:
-                        display_order = 1
-
-                    ProductImage.objects.create(
-                        product=product,
-                        image=image_url,
-                        display_order=display_order
-                    )
-
-                except Exception as e:
+                except Exception as exc:
 
                     form.add_error(
                         "image",
-                        f"Image upload failed: {e}"
+                        f"Image upload failed: {exc}"
                     )
 
                     return render(
@@ -279,13 +343,42 @@ def product_edit(request, pk):
                         {
                             "form": form,
                             "product": product,
-                            "title": "Edit Product"
+                            "title": "Edit Product",
                         }
                     )
+
+                # Save product changes
+                form.save()
+
+                # ------------------------------------------------
+                # Add new image
+                # ------------------------------------------------
+
+                ProductImage.objects.create(
+                    product=product,
+                    image=image_url,
+                    display_order=1
+                )
+
+            else:
+
+                # Save normal product changes
+                form.save()
+
+            messages.success(
+                request,
+                "Product updated successfully."
+            )
 
             return redirect(
                 "dashboard:product_list"
             )
+
+    else:
+
+        form = ProductForm(
+            instance=product
+        )
 
     return render(
         request,
@@ -293,14 +386,14 @@ def product_edit(request, pk):
         {
             "form": form,
             "product": product,
-            "title": "Edit Product"
+            "title": "Edit Product",
         }
     )
 
 
-# =========================================================
+# ============================================================
 # DELETE PRODUCT
-# =========================================================
+# ============================================================
 
 @require_POST
 @login_required
@@ -313,20 +406,26 @@ def product_delete(request, pk):
 
     product.delete()
 
+    messages.success(
+        request,
+        "Product deleted successfully."
+    )
+
     return redirect(
         "dashboard:product_list"
     )
 
 
-# =========================================================
-# ORDER LIST
-# =========================================================
+# ============================================================
+# ORDERS
+# ============================================================
 
 @login_required
 def order_list(request):
 
-    orders = Order.objects.all().order_by(
-        "-created_at"
+    orders = (
+        Order.objects
+        .order_by("-created_at")
     )
 
     return render(
@@ -338,9 +437,9 @@ def order_list(request):
     )
 
 
-# =========================================================
-# ORDER STATUS UPDATE
-# =========================================================
+# ============================================================
+# UPDATE ORDER STATUS
+# ============================================================
 
 @require_POST
 @login_required
@@ -351,31 +450,34 @@ def order_status_update(request, pk):
         pk=pk
     )
 
-    new_status = request.POST.get(
-        "status"
-    )
+    new_status = request.POST.get("status")
 
-    allowed_statuses = [
+    valid_statuses = [
         Order.STATUS_PENDING,
         Order.STATUS_PACKED,
         Order.STATUS_SHIPPED,
         Order.STATUS_DELIVERED,
     ]
 
-    if new_status in allowed_statuses:
+    if new_status in valid_statuses:
 
         order.order_status = new_status
 
         order.save()
+
+        messages.success(
+            request,
+            "Order status updated."
+        )
 
     return redirect(
         "dashboard:order_list"
     )
 
 
-# =========================================================
+# ============================================================
 # ANALYTICS
-# =========================================================
+# ============================================================
 
 @login_required
 def analytics_view(request):
@@ -388,21 +490,25 @@ def analytics_view(request):
         completed_orders.aggregate(
             Sum("total_amount")
         )["total_amount__sum"]
-        or 0.00
+        or 0
     )
 
     completed_count = completed_orders.count()
 
-    average_order_value = (
-        total_revenue / completed_count
-        if completed_count > 0
-        else 0
-    )
+    if completed_count > 0:
+        average_order_value = (
+            total_revenue / completed_count
+        )
+    else:
+        average_order_value = 0
 
     orders_by_status = (
         Order.objects
         .values("order_status")
-        .annotate(count=Count("id"))
+        .annotate(
+            count=Count("id")
+        )
+        .order_by("order_status")
     )
 
     best_sellers = (

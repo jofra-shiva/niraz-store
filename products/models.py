@@ -106,14 +106,9 @@ class ProductImage(models.Model):
         on_delete=models.CASCADE
     )
 
-    # ImgBB image URL
-    image = models.URLField(
-        max_length=1000
-    )
+    image = models.URLField(max_length=1000)
 
-    display_order = models.PositiveIntegerField(
-        default=0
-    )
+    display_order = models.PositiveIntegerField(default=0)
 
     class Meta:
         ordering = ["display_order"]

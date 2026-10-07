@@ -7,12 +7,8 @@ class Category(models.Model):
     slug = models.SlugField(max_length=120, unique=True, blank=True)
     description = models.TextField(blank=True, null=True)
 
-    # ImgBB image URL
-    image = models.URLField(
-        max_length=1000,
-        blank=True,
-        null=True
-    )
+    # ImgBB URL
+    image = models.URLField(max_length=1000, blank=True, null=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -46,39 +42,24 @@ class Product(models.Model):
 
     description = models.TextField()
 
-    # Original price
     price = models.DecimalField(
         max_digits=10,
         decimal_places=2
     )
 
-    discount_percent = models.PositiveIntegerField(
-        default=0
-    )
+    discount_percent = models.PositiveIntegerField(default=0)
 
-    stock = models.PositiveIntegerField(
-        default=10
-    )
+    stock = models.PositiveIntegerField(default=10)
 
-    available = models.BooleanField(
-        default=True
-    )
+    available = models.BooleanField(default=True)
 
-    featured = models.BooleanField(
-        default=False
-    )
+    featured = models.BooleanField(default=False)
 
-    is_new = models.BooleanField(
-        default=False
-    )
+    is_new = models.BooleanField(default=False)
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
-    updated_at = models.DateTimeField(
-        auto_now=True
-    )
+    updated_at = models.DateTimeField(auto_now=True)
 
     emoji = models.CharField(
         max_length=10,
@@ -125,11 +106,9 @@ class ProductImage(models.Model):
         on_delete=models.CASCADE
     )
 
-    # ImgBB URL
+    # ImgBB image URL
     image = models.URLField(
-        max_length=1000,
-        blank=True,
-        null=True
+        max_length=1000
     )
 
     display_order = models.PositiveIntegerField(

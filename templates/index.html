@@ -4,222 +4,556 @@
 {% block title %}NIRAZ – Elevate Your Style | Premium Men's Fashion{% endblock %}
 
 {% block content %}
-<!-- HERO -->
+
+<!-- =========================================================
+     HERO
+========================================================= -->
 <section class="hero">
   <div class="hero-bg">
     <div class="hero-gradient"></div>
     <div class="hero-noise"></div>
   </div>
+
   <div class="hero-content">
     <div class="hero-tag">New Collection 2026</div>
+
     <h1 class="hero-title">
       <span class="hero-line">ELEVATE</span>
       <span class="hero-line accent">YOUR</span>
       <span class="hero-line">STYLE</span>
     </h1>
-    <p class="hero-sub">Premium Men's Fashion — Crafted for the Bold</p>
+
+    <p class="hero-sub">
+      Premium Men's Fashion — Crafted for the Bold
+    </p>
+
     <div class="hero-btns">
-      <a href="{% url 'products:category_detail' slug='trendy' %}" class="btn-primary">Shop Now</a>
-      <a href="{% url 'products:category_detail' slug='combo' %}" class="btn-ghost">View Combos</a>
+      <a
+        href="{% url 'products:category_detail' slug='trendy' %}"
+        class="btn-primary"
+      >
+        Shop Now
+      </a>
+
+      <a
+        href="{% url 'products:category_detail' slug='combo' %}"
+        class="btn-ghost"
+      >
+        View Combos
+      </a>
     </div>
   </div>
+
   <div class="hero-scroll">
     <span>Scroll</span>
     <div class="scroll-line"></div>
   </div>
 </section>
 
-<!-- CATEGORIES SECTION -->
+
+<!-- =========================================================
+     CATEGORIES SECTION
+========================================================= -->
 <section class="categories section">
   <div class="container">
+
     <div class="section-header">
       <h2 class="section-title">Shop By Style</h2>
       <p class="section-sub">Find your fashion identity</p>
     </div>
+
     <div class="cat-grid">
+
       {% for cat in categories %}
-      <a href="{% url 'products:category_detail' slug=cat.slug %}" class="cat-card">
-        <div class="cat-img" style="background: linear-gradient(135deg, #111827, #1f2937);">
+
+      <a
+        href="{% url 'products:category_detail' slug=cat.slug %}"
+        class="cat-card"
+      >
+
+        <div
+          class="cat-img"
+          style="background: linear-gradient(135deg, #111827, #1f2937);"
+        >
+
           {% if cat.image %}
-            <img src="{{ cat.image.url }}" alt="{{ cat.name }}" style="width: 100%; height: 100%; object-fit: cover; opacity: 0.8;"/>
+
+            <!-- ImgBB category image -->
+            <img
+              src="{{ cat.image }}"
+              alt="{{ cat.name }}"
+              style="
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                display: block;
+                opacity: 0.8;
+              "
+            >
+
           {% else %}
+
             <div class="cat-placeholder">
-              {% if cat.slug == 'trendy' %}👔
-              {% elif cat.slug == 'classic' %}🎩
-              {% elif cat.slug == 'funky' %}🎨
-              {% else %}🛍️{% endif %}
+
+              {% if cat.slug == 'trendy' %}
+                👔
+
+              {% elif cat.slug == 'classic' %}
+                🎩
+
+              {% elif cat.slug == 'funky' %}
+                🎨
+
+              {% else %}
+                🛍️
+
+              {% endif %}
+
             </div>
+
           {% endif %}
+
         </div>
-        <div class="cat-label">{{ cat.name }}</div>
-        <div class="cat-count">{{ cat.products.count }} Items</div>
+
+        <div class="cat-label">
+          {{ cat.name }}
+        </div>
+
+        <div class="cat-count">
+          {{ cat.products.count }} Items
+        </div>
+
       </a>
+
       {% empty %}
-      <!-- Fallback static setup if no database categories exist yet -->
-      <a href="{% url 'products:category_detail' slug='trendy' %}" class="cat-card">
-        <div class="cat-img" style="background: linear-gradient(135deg,#1a0533,#3b1578);">
+
+      <!-- =====================================================
+           FALLBACK CATEGORIES
+      ====================================================== -->
+
+      <a
+        href="{% url 'products:category_detail' slug='trendy' %}"
+        class="cat-card"
+      >
+        <div
+          class="cat-img"
+          style="background: linear-gradient(135deg,#1a0533,#3b1578);"
+        >
           <div class="cat-placeholder">👔</div>
         </div>
-        <div class="cat-label">Trendy</div>
-        <div class="cat-count">Active Drops</div>
+
+        <div class="cat-label">
+          Trendy
+        </div>
+
+        <div class="cat-count">
+          Active Drops
+        </div>
       </a>
-      <a href="{% url 'products:category_detail' slug='classic' %}" class="cat-card">
-        <div class="cat-img" style="background: linear-gradient(135deg,#0a1628,#1e3a5f);">
+
+
+      <a
+        href="{% url 'products:category_detail' slug='classic' %}"
+        class="cat-card"
+      >
+        <div
+          class="cat-img"
+          style="background: linear-gradient(135deg,#0a1628,#1e3a5f);"
+        >
           <div class="cat-placeholder">🎩</div>
         </div>
-        <div class="cat-label">Classic</div>
-        <div class="cat-count">Classic Formal</div>
+
+        <div class="cat-label">
+          Classic
+        </div>
+
+        <div class="cat-count">
+          Classic Formal
+        </div>
       </a>
-      <a href="{% url 'products:category_detail' slug='funky' %}" class="cat-card">
-        <div class="cat-img" style="background: linear-gradient(135deg,#1a1a0a,#4a3800);">
+
+
+      <a
+        href="{% url 'products:category_detail' slug='funky' %}"
+        class="cat-card"
+      >
+        <div
+          class="cat-img"
+          style="background: linear-gradient(135deg,#1a1a0a,#4a3800);"
+        >
           <div class="cat-placeholder">🎨</div>
         </div>
-        <div class="cat-label">Funky</div>
-        <div class="cat-count">Expressive</div>
+
+        <div class="cat-label">
+          Funky
+        </div>
+
+        <div class="cat-count">
+          Expressive
+        </div>
       </a>
-      <a href="{% url 'products:category_detail' slug='combo' %}" class="cat-card">
-        <div class="cat-img" style="background: linear-gradient(135deg,#0a1a0a,#1a4a1a);">
+
+
+      <a
+        href="{% url 'products:category_detail' slug='combo' %}"
+        class="cat-card"
+      >
+        <div
+          class="cat-img"
+          style="background: linear-gradient(135deg,#0a1a0a,#1a4a1a);"
+        >
           <div class="cat-placeholder">🛍️</div>
         </div>
-        <div class="cat-label">Combo</div>
-        <div class="cat-count">Saves 40%</div>
+
+        <div class="cat-label">
+          Combo
+        </div>
+
+        <div class="cat-count">
+          Saves 40%
+        </div>
       </a>
+
       {% endfor %}
+
     </div>
   </div>
 </section>
 
-<!-- FEATURED PRODUCTS -->
+
+<!-- =========================================================
+     FEATURED PRODUCTS
+========================================================= -->
 <section class="featured section">
   <div class="container">
+
     <div class="section-header">
-      <h2 class="section-title">Featured Products</h2>
-      <a href="{% url 'products:category_detail' slug='trendy' %}" class="see-all">See All →</a>
+
+      <h2 class="section-title">
+        Featured Products
+      </h2>
+
+      <a
+        href="{% url 'products:category_detail' slug='trendy' %}"
+        class="see-all"
+      >
+        See All →
+      </a>
+
     </div>
+
+
     <div class="products-grid" id="featuredGrid">
+
       {% for p in featured_products %}
-      <div class="product-card" data-id="{{ p.id }}">
 
-    <div class="product-img-wrap"
-     onclick="window.location.href='{% url 'products:product_detail' slug=p.slug %}'">
+      <div
+        class="product-card"
+        data-id="{{ p.id }}"
+      >
 
-    {% for image in p.images.all %}
-        {% if forloop.first %}
-            <img src="{{ image.image.url }}" alt="{{ p.name }}">
-        {% endif %}
-    {% empty %}
-        <div class="product-emoji">{{ p.emoji }}</div>
-    {% endfor %}
+        <!-- =================================================
+             PRODUCT IMAGE
+        ================================================== -->
+        <div
+          class="product-img-wrap"
+          onclick="window.location.href='{% url 'products:product_detail' slug=p.slug %}'"
+          style="cursor: pointer;"
+        >
 
-    {% if p.discount_percent > 0 %}
-        <div class="discount-badge">-{{ p.discount_percent }}%</div>
-    {% endif %}
+          {% for image in p.images.all %}
 
-    {% if p.is_new %}
-        <div class="new-badge">NEW</div>
-    {% endif %}
-</div>
+            {% if forloop.first %}
 
-    <div class="product-info">
-        <div class="product-name"
-             style="cursor:pointer;"
-             onclick="window.location.href='{% url 'products:product_detail' slug=p.slug %}'">
-            {{ p.name }}
+              <!-- ImgBB product image -->
+              <img
+                src="{{ image.image }}"
+                alt="{{ p.name }}"
+                style="
+                  width: 100%;
+                  height: 100%;
+                  object-fit: cover;
+                  display: block;
+                "
+              >
+
+            {% endif %}
+
+          {% empty %}
+
+            <!-- No uploaded image -->
+            <div class="product-emoji">
+              {{ p.emoji }}
+            </div>
+
+          {% endfor %}
+
+
+          <!-- DISCOUNT BADGE -->
+          {% if p.discount_percent > 0 %}
+
+            <div class="discount-badge">
+              -{{ p.discount_percent }}%
+            </div>
+
+          {% endif %}
+
+
+          <!-- NEW BADGE -->
+          {% if p.is_new %}
+
+            <div class="new-badge">
+              NEW
+            </div>
+
+          {% endif %}
+
         </div>
 
-        <div class="product-pricing">
+
+        <!-- =================================================
+             PRODUCT INFORMATION
+        ================================================== -->
+        <div class="product-info">
+
+          <!-- PRODUCT NAME -->
+          <div
+            class="product-name"
+            style="cursor: pointer;"
+            onclick="window.location.href='{% url 'products:product_detail' slug=p.slug %}'"
+          >
+            {{ p.name }}
+          </div>
+
+
+          <!-- PRODUCT PRICE -->
+          <div class="product-pricing">
+
             <span class="product-price">
-                ₹{{ p.sale_price_as_int }}
+              ₹{{ p.sale_price_as_int }}
             </span>
 
+
             {% if p.discount_percent > 0 %}
-                <span class="product-original">
-                    ₹{{ p.price_as_int }}
-                </span>
+
+              <span class="product-original">
+                ₹{{ p.price_as_int }}
+              </span>
+
             {% endif %}
-        </div>
 
-        <div class="product-actions">
+          </div>
 
-            <form action="{% url 'cart:cart_add' product_id=p.id %}"
-                  method="post"
-                  style="flex:1;">
-                {% csrf_token %}
-                <input type="hidden" name="size" value="M">
-                <input type="hidden" name="quantity" value="1">
 
-                <button type="submit"
-                        class="btn-cart"
-                        style="width:100%;">
-                    Add to Cart
-                </button>
+          <!-- =================================================
+               PRODUCT ACTIONS
+          ================================================== -->
+          <div class="product-actions">
+
+            <!-- ADD TO CART -->
+            <form
+              action="{% url 'cart:cart_add' product_id=p.id %}"
+              method="post"
+              style="flex: 1;"
+            >
+
+              {% csrf_token %}
+
+              <input
+                type="hidden"
+                name="size"
+                value="M"
+              >
+
+              <input
+                type="hidden"
+                name="quantity"
+                value="1"
+              >
+
+              <button
+                type="submit"
+                class="btn-cart"
+                style="width: 100%;"
+              >
+                Add to Cart
+              </button>
+
             </form>
 
-            <a href="{% url 'products:product_detail' slug=p.slug %}"
-               class="btn-buy"
-               style="display:inline-flex;
-                      align-items:center;
-                      justify-content:center;
-                      text-decoration:none;">
-                Details
+
+            <!-- DETAILS -->
+            <a
+              href="{% url 'products:product_detail' slug=p.slug %}"
+              class="btn-buy"
+              style="
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                text-decoration: none;
+              "
+            >
+              Details
             </a>
 
-        </div>
-    </div>
+          </div>
 
-</div>
-      {% empty %}
-      <div class="empty-state" style="grid-column: span 4;">
-        <p style="color: var(--gray);">No products found yet in PostgreSQL. Add some in the Dashboard!</p>
+        </div>
+
       </div>
+
+
+      {% empty %}
+
+      <!-- NO PRODUCTS -->
+      <div
+        class="empty-state"
+        style="grid-column: span 4;"
+      >
+        <p style="color: var(--gray);">
+          No products found yet in PostgreSQL.
+          Add some in the Dashboard!
+        </p>
+      </div>
+
       {% endfor %}
+
     </div>
   </div>
 </section>
 
-<!-- NEW ARRIVALS BANNER -->
+
+<!-- =========================================================
+     NEW ARRIVALS BANNER
+========================================================= -->
 <section class="arrivals-banner section">
+
   <div class="container">
+
     <div class="arrivals-inner">
+
       <div class="arrivals-text">
-        <div class="tag-pill">Just Dropped</div>
-        <h2>New Arrivals</h2>
-        <p>Fresh styles for the modern man. Limited stock available.</p>
-        <a href="{% url 'products:category_detail' slug='trendy' %}" class="btn-primary">Explore Now</a>
+
+        <div class="tag-pill">
+          Just Dropped
+        </div>
+
+        <h2>
+          New Arrivals
+        </h2>
+
+        <p>
+          Fresh styles for the modern man.
+          Limited stock available.
+        </p>
+
+        <a
+          href="{% url 'products:category_detail' slug='trendy' %}"
+          class="btn-primary"
+        >
+          Explore Now
+        </a>
+
       </div>
+
+
       <div class="arrivals-visual">
+
         <div class="arrival-circle c1"></div>
         <div class="arrival-circle c2"></div>
         <div class="arrival-circle c3"></div>
-        <div class="arrival-emoji">👔</div>
+
+        <div class="arrival-emoji">
+          👔
+        </div>
+
       </div>
+
     </div>
+
   </div>
+
 </section>
 
-<!-- WHY NIRAZ -->
+
+<!-- =========================================================
+     WHY NIRAZ
+========================================================= -->
 <section class="why section">
+
   <div class="container">
+
     <div class="section-header center">
-      <h2 class="section-title">Why Choose NIRAZ</h2>
+
+      <h2 class="section-title">
+        Why Choose NIRAZ
+      </h2>
+
     </div>
+
+
     <div class="why-grid">
+
+      <!-- PREMIUM QUALITY -->
       <div class="why-card">
-        <div class="why-icon">💎</div>
-        <h3>Premium Quality</h3>
-        <p>Every piece is crafted with finest materials, ensuring comfort and durability that lasts.</p>
+
+        <div class="why-icon">
+          💎
+        </div>
+
+        <h3>
+          Premium Quality
+        </h3>
+
+        <p>
+          Every piece is crafted with finest materials,
+          ensuring comfort and durability that lasts.
+        </p>
+
       </div>
+
+
+      <!-- FAST DELIVERY -->
       <div class="why-card">
-        <div class="why-icon">⚡</div>
-        <h3>Fast Delivery</h3>
-        <p>Lightning-fast shipping across India. Your style arrives before the occasion.</p>
+
+        <div class="why-icon">
+          ⚡
+        </div>
+
+        <h3>
+          Fast Delivery
+        </h3>
+
+        <p>
+          Lightning-fast shipping across India.
+          Your style arrives before the occasion.
+        </p>
+
       </div>
+
+
+      <!-- AFFORDABLE LUXURY -->
       <div class="why-card">
-        <div class="why-icon">✨</div>
-        <h3>Affordable Luxury</h3>
-        <p>Designer aesthetics at prices that don't require a second mortgage. Real value.</p>
+
+        <div class="why-icon">
+          ✨
+        </div>
+
+        <h3>
+          Affordable Luxury
+        </h3>
+
+        <p>
+          Designer aesthetics at prices that don't
+          require a second mortgage. Real value.
+        </p>
+
       </div>
+
     </div>
+
   </div>
+
 </section>
+
 {% endblock %}

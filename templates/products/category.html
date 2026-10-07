@@ -4,106 +4,307 @@
 {% block title %}{{ category.name }} Collection – NIRAZ{% endblock %}
 
 {% block content %}
+
+<!-- =========================================================
+     CATEGORY HERO
+========================================================= -->
 <div class="page-hero">
   <div class="container">
-    <h1>{{ category.name|upper }}</h1>
-    <p>{{ category.description|default:"Street style meets premium fashion. The freshest drops, curated for you." }}</p>
+
+    <h1>
+      {{ category.name|upper }}
+    </h1>
+
+    <p>
+      {{ category.description|default:"Street style meets premium fashion. The freshest drops, curated for you." }}
+    </p>
+
   </div>
 </div>
 
+
+<!-- =========================================================
+     PRODUCTS SECTION
+========================================================= -->
 <section class="section">
+
   <div class="container">
-    <!-- Filter bar with dynamic links -->
+
+    <!-- =====================================================
+         FILTER BAR
+    ====================================================== -->
     <div class="filter-bar">
+
       <div class="filter-bar-left">
-        <a href="?filter=all" class="filter-chip {% if current_filter == 'all' %}active{% endif %}" style="text-decoration:none;">All</a>
-        <a href="?filter=new" class="filter-chip {% if current_filter == 'new' %}active{% endif %}" style="text-decoration:none;">New Arrivals</a>
-        <a href="?filter=price-asc" class="filter-chip {% if current_filter == 'price-asc' %}active{% endif %}" style="text-decoration:none;">Price ↑</a>
-        <a href="?filter=price-desc" class="filter-chip {% if current_filter == 'price-desc' %}active{% endif %}" style="text-decoration:none;">Price ↓</a>
-        <a href="?filter=discount" class="filter-chip {% if current_filter == 'discount' %}active{% endif %}" style="text-decoration:none;">Best Offer</a>
+
+        <a
+          href="?filter=all"
+          class="filter-chip {% if current_filter == 'all' %}active{% endif %}"
+          style="text-decoration:none;"
+        >
+          All
+        </a>
+
+
+        <a
+          href="?filter=new"
+          class="filter-chip {% if current_filter == 'new' %}active{% endif %}"
+          style="text-decoration:none;"
+        >
+          New Arrivals
+        </a>
+
+
+        <a
+          href="?filter=price-asc"
+          class="filter-chip {% if current_filter == 'price-asc' %}active{% endif %}"
+          style="text-decoration:none;"
+        >
+          Price ↑
+        </a>
+
+
+        <a
+          href="?filter=price-desc"
+          class="filter-chip {% if current_filter == 'price-desc' %}active{% endif %}"
+          style="text-decoration:none;"
+        >
+          Price ↓
+        </a>
+
+
+        <a
+          href="?filter=discount"
+          class="filter-chip {% if current_filter == 'discount' %}active{% endif %}"
+          style="text-decoration:none;"
+        >
+          Best Offer
+        </a>
+
       </div>
-      <div class="filter-bar-right" id="productCount">{{ products_count }} Products</div>
+
+
+      <div
+        class="filter-bar-right"
+        id="productCount"
+      >
+        {{ products_count }} Products
+      </div>
+
     </div>
-    
-    <div class="products-grid" id="productsContainer">
+
+
+    <!-- =====================================================
+         PRODUCTS GRID
+    ====================================================== -->
+    <div
+      class="products-grid"
+      id="productsContainer"
+    >
+
       {% for p in products %}
-      <div class="product-card" data-id="{{ p.id }}">
-        <div class="product-img-wrap"
-     style="cursor:pointer;"
-     onclick="window.location.href='{% url 'products:product_detail' slug=p.slug %}'">
 
-    <div class="product-img-wrap"
-     style="cursor:pointer;"
-     onclick="window.location.href='{% url 'products:product_detail' slug=p.slug %}'">
+      <div
+        class="product-card"
+        data-id="{{ p.id }}"
+      >
 
-    {% with image=p.images.first %}
+        <!-- =================================================
+             PRODUCT IMAGE
+        ================================================== -->
+        <div
+          class="product-img-wrap"
+          style="cursor:pointer;"
+          onclick="window.location.href='{% url 'products:product_detail' slug=p.slug %}'"
+        >
 
-        {% if image %}
-            <img
-                src="{{ image.image.url }}"
+          {% for image in p.images.all %}
+
+            {% if forloop.first %}
+
+              <!--
+                IMPORTANT:
+                ImgBB URLField is already a complete URL.
+                Do NOT use .url here.
+              -->
+              <img
+                src="{{ image.image }}"
                 alt="{{ p.name }}"
-                style="width:100%;
-                       height:240px;
-                       object-fit:cover;
-                       display:block;"
-            >
-        {% else %}
-            <div class="product-emoji">
-                {{ p.emoji|default:"👕" }}
-            </div>
-        {% endif %}
+                style="
+                  width: 100%;
+                  height: 100%;
+                  object-fit: cover;
+                  display: block;
+                "
+              >
 
-    {% endwith %}
-
-    {% if p.discount_percent > 0 %}
-        <div class="discount-badge">
-            -{{ p.discount_percent }}%
-        </div>
-    {% endif %}
-
-    {% if p.is_new %}
-        <div class="new-badge">
-            NEW
-        </div>
-    {% endif %}
-
-</div>
-
-    {% if p.discount_percent > 0 %}
-        <div class="discount-badge">-{{ p.discount_percent }}%</div>
-    {% endif %}
-
-    {% if p.is_new %}
-        <div class="new-badge">NEW</div>
-    {% endif %}
-</div>
-        <div class="product-info">
-          <div class="product-name" style="cursor: pointer;" onclick="window.location.href='{% url 'products:product_detail' slug=p.slug %}'">{{ p.name }}</div>
-          <div class="product-pricing">
-            <span class="product-price">₹{{ p.sale_price_as_int }}</span>
-            {% if p.discount_percent > 0 %}
-            <span class="product-original">₹{{ p.price_as_int }}</span>
             {% endif %}
-          </div>
-          <div class="product-actions">
-            <form action="{% url 'cart:cart_add' product_id=p.id %}" method="post" style="flex:1;">
-              {% csrf_token %}
-              <input type="hidden" name="size" value="M"/>
-              <input type="hidden" name="quantity" value="1"/>
-              <button type="submit" class="btn-cart" style="width:100%;">Add to Cart</button>
-            </form>
-            <a href="{% url 'products:product_detail' slug=p.slug %}" class="btn-buy" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;">Details</a>
-          </div>
+
+          {% empty %}
+
+            <!-- No image uploaded -->
+            <div class="product-emoji">
+              {{ p.emoji }}
+            </div>
+
+          {% endfor %}
+
+
+          <!-- =================================================
+               DISCOUNT BADGE
+          ================================================== -->
+          {% if p.discount_percent > 0 %}
+
+            <div class="discount-badge">
+              -{{ p.discount_percent }}%
+            </div>
+
+          {% endif %}
+
+
+          <!-- =================================================
+               NEW BADGE
+          ================================================== -->
+          {% if p.is_new %}
+
+            <div class="new-badge">
+              NEW
+            </div>
+
+          {% endif %}
+
         </div>
+
+
+        <!-- =================================================
+             PRODUCT INFORMATION
+        ================================================== -->
+        <div class="product-info">
+
+          <!-- PRODUCT NAME -->
+          <div
+            class="product-name"
+            style="cursor:pointer;"
+            onclick="window.location.href='{% url 'products:product_detail' slug=p.slug %}'"
+          >
+            {{ p.name }}
+          </div>
+
+
+          <!-- PRODUCT PRICING -->
+          <div class="product-pricing">
+
+            <span class="product-price">
+              ₹{{ p.sale_price_as_int }}
+            </span>
+
+
+            {% if p.discount_percent > 0 %}
+
+              <span class="product-original">
+                ₹{{ p.price_as_int }}
+              </span>
+
+            {% endif %}
+
+          </div>
+
+
+          <!-- =================================================
+               PRODUCT ACTIONS
+          ================================================== -->
+          <div class="product-actions">
+
+            <!-- ADD TO CART -->
+            <form
+              action="{% url 'cart:cart_add' product_id=p.id %}"
+              method="post"
+              style="flex:1;"
+            >
+
+              {% csrf_token %}
+
+              <input
+                type="hidden"
+                name="size"
+                value="M"
+              >
+
+              <input
+                type="hidden"
+                name="quantity"
+                value="1"
+              >
+
+              <button
+                type="submit"
+                class="btn-cart"
+                style="width:100%;"
+              >
+                Add to Cart
+              </button>
+
+            </form>
+
+
+            <!-- DETAILS -->
+            <a
+              href="{% url 'products:product_detail' slug=p.slug %}"
+              class="btn-buy"
+              style="
+                display:inline-flex;
+                align-items:center;
+                justify-content:center;
+                text-decoration:none;
+              "
+            >
+              Details
+            </a>
+
+          </div>
+
+        </div>
+
       </div>
+
+
       {% empty %}
-      <div class="empty-state" style="grid-column: span 4; width:100%; text-align:center;">
-        <div class="empty-icon" style="font-size: 50px;">🛍️</div>
-        <h3>No products found</h3>
-        <p>No products match this filter currently.</p>
+
+      <!-- =================================================
+           EMPTY STATE
+      ================================================== -->
+      <div
+        class="empty-state"
+        style="
+          grid-column: span 4;
+          width:100%;
+          text-align:center;
+        "
+      >
+
+        <div
+          class="empty-icon"
+          style="font-size:50px;"
+        >
+          🛍️
+        </div>
+
+        <h3>
+          No products found
+        </h3>
+
+        <p>
+          No products match this filter currently.
+        </p>
+
       </div>
+
       {% endfor %}
+
     </div>
+
   </div>
+
 </section>
+
 {% endblock %}

@@ -1,6 +1,7 @@
 import os
 import requests
 
+from django.conf import settings
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
 from django.contrib.auth import login, logout
@@ -10,6 +11,7 @@ from django.db.models import Sum, Count
 from django.contrib import messages
 
 from products.models import Product, ProductImage
+from products.imgbb import resolve_direct_image_url
 from orders.models import Order, OrderItem
 
 from .forms import ProductForm
@@ -24,12 +26,12 @@ def upload_to_imgbb(uploaded_file):
     Upload an image to ImgBB and return the public image URL.
     """
 
-    api_key = os.getenv("IMGBB_API_KEY")
+    api_key = getattr(settings, "IMGBB_API_KEY", None) or os.getenv("IMGBB_API_KEY")
 
     if not api_key:
         raise ValueError(
             "IMGBB_API_KEY is missing. "
-            "Add it to your environment variables."
+            "Add IMGBB_API_KEY=your_key to your .env file."
         )
 
     try:
@@ -222,9 +224,10 @@ def product_add(request):
         if form.is_valid():
 
             uploaded_image = request.FILES.get("image")
+            direct_image_url = form.cleaned_data.get("image_url")
 
             # ------------------------------------------------
-            # Upload image FIRST
+            # Resolve image (Upload file OR use direct ImgBB URL)
             # ------------------------------------------------
 
             image_url = None
@@ -252,6 +255,9 @@ def product_add(request):
                             "title": "Add Product",
                         }
                     )
+
+            elif direct_image_url:
+                image_url = resolve_direct_image_url(direct_image_url.strip())
 
             # ------------------------------------------------
             # Save product
@@ -317,10 +323,13 @@ def product_edit(request, pk):
         if form.is_valid():
 
             uploaded_image = request.FILES.get("image")
+            direct_image_url = form.cleaned_data.get("image_url")
 
             # ------------------------------------------------
-            # Upload new image if provided
+            # Resolve image (Upload file OR use direct ImgBB URL)
             # ------------------------------------------------
+
+            image_url = None
 
             if uploaded_image:
 
@@ -347,23 +356,26 @@ def product_edit(request, pk):
                         }
                     )
 
-                # Save product changes
-                form.save()
+            elif direct_image_url:
+                image_url = resolve_direct_image_url(direct_image_url.strip())
 
-                # ------------------------------------------------
-                # Add new image
-                # ------------------------------------------------
+            # Save normal product changes
+            form.save()
 
-                ProductImage.objects.create(
-                    product=product,
-                    image=image_url,
-                    display_order=1
-                )
+            if image_url:
 
-            else:
+                # Update primary image if exists, or create new one
+                primary_image = product.images.first()
 
-                # Save normal product changes
-                form.save()
+                if primary_image:
+                    primary_image.image = image_url
+                    primary_image.save()
+                else:
+                    ProductImage.objects.create(
+                        product=product,
+                        image=image_url,
+                        display_order=1
+                    )
 
             messages.success(
                 request,
@@ -540,3 +552,17 @@ def analytics_view(request):
         "dashboard/analytics.html",
         context
     )
+
+
+# ============================================================
+# DELETE PRODUCT IMAGE
+# ============================================================
+
+@require_POST
+@login_required
+def product_image_delete(request, product_pk, image_pk):
+    product = get_object_or_404(Product, pk=product_pk)
+    image = get_object_or_404(ProductImage, pk=image_pk, product=product)
+    image.delete()
+    messages.success(request, "Product image removed successfully.")
+    return redirect("dashboard:product_edit", pk=product.pk)

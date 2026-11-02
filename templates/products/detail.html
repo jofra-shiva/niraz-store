@@ -41,10 +41,14 @@
               id="mainImgObj"
               src="{{ product.images.first.image }}"
               alt="{{ product.name }}"
+              onerror="this.style.display='none'; document.getElementById('mainEmojiObj').style.display='block';"
               style="max-width:100%;
                      max-height:80%;
                      object-fit:contain;"
             >
+            <span id="mainEmojiObj" style="display:none;">
+              {{ product.emoji }}
+            </span>
 
           {% else %}
 

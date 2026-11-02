@@ -34,7 +34,7 @@
           <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
             <thead>
               <tr style="border-bottom: 1px solid var(--border); color: var(--gray); font-family: var(--font-head); font-weight:700;">
-                <th style="padding:12px;">EMOJI</th>
+                <th style="padding:12px;">IMAGE</th>
                 <th style="padding:12px;">PRODUCT NAME</th>
                 <th style="padding:12px;">CATEGORY</th>
                 <th style="padding:12px;">PRICE</th>
@@ -47,7 +47,13 @@
             <tbody>
               {% for p in products %}
               <tr style="border-bottom: 1px solid rgba(255,255,255,0.03); color: var(--gray);">
-                <td style="padding:14px; font-size: 24px;">{{ p.emoji }}</td>
+                <td style="padding:14px; font-size: 24px;">
+                  {% if p.images.first %}
+                    <img src="{{ p.images.first.image }}" alt="{{ p.name }}" style="width:36px; height:36px; object-fit:cover; border-radius:6px; display:inline-block; vertical-align:middle;">
+                  {% else %}
+                    {{ p.emoji }}
+                  {% endif %}
+                </td>
                 <td style="padding:14px; font-weight: 600; color: var(--white);">{{ p.name }}</td>
                 <td style="padding:14px; text-transform: uppercase; font-size:11px; font-weight:600;">{{ p.category.name }}</td>
                 <td style="padding:14px; color: var(--white);">₹{{ p.price_as_int }}</td>

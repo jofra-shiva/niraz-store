@@ -14,17 +14,37 @@ class ProductImageForm(forms.ModelForm):
     # This is the actual file upload field
     upload_image = forms.ImageField(
         required=False,
-        label="Image"
+        label="Upload File to ImgBB"
     )
 
     class Meta:
         model = ProductImage
 
-        # Don't show the URLField to the admin
         fields = [
             "upload_image",
+            "image",
             "display_order",
         ]
+        widgets = {
+            "image": forms.TextInput(
+                attrs={
+                    "placeholder": "https://i.ibb.co/... (or upload file above)",
+                    "style": "width: 450px;"
+                }
+            )
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        upload_image = cleaned_data.get("upload_image")
+        image = cleaned_data.get("image")
+
+        if not upload_image and not image:
+            raise forms.ValidationError(
+                "Please either upload an image file or provide an ImgBB image URL."
+            )
+
+        return cleaned_data
 
     def save(self, commit=True):
 
@@ -66,6 +86,7 @@ class ProductImageInline(admin.TabularInline):
 
     fields = (
         "upload_image",
+        "image",
         "display_order",
     )
 

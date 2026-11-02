@@ -6,11 +6,22 @@ class ProductForm(forms.ModelForm):
 
     image = forms.ImageField(
         required=False,
-        label="Product Image",
+        label="Upload Product Image File",
         widget=forms.ClearableFileInput(
             attrs={
                 "accept": "image/*",
                 "class": "product-image-input",
+            }
+        ),
+    )
+
+    image_url = forms.URLField(
+        required=False,
+        label="Or Paste Existing ImgBB Image URL",
+        widget=forms.URLInput(
+            attrs={
+                "class": "form-control",
+                "placeholder": "https://i.ibb.co/... (if already uploaded to ImgBB)",
             }
         ),
     )
